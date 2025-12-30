@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>White Sphere Survival</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container"></div>
+    <button id="start-button">START</button>
+    <button id="pause-button">PAUSE</button>
+    <button id="restart-button">RESTART</button>
+    <div id="hud"></div>
+    <div id="audio-controls">
+        <label for="music-volume">Music Volume:</label>
+        <input type="range" id="music-volume" min="0" max="1" step="0.1" value="1">
+        <label for="effects-volume">Effects Volume:</label>
+        <input type="range" id="effects-volume" min="0" max="1" step="0.1" value="1">
+    </div>
+    <div id="game-over">GAME OVER</div>
+    <button id="try-again-button">TRY AGAIN</button>
+    <button id="next-level-button">NEXT LEVEL</button>
+    <div id="upgrade-window">
+        <h2>UPGRADES</h2>
+        <div id="upgrade-text"></div>
+        <button id="damage-upgrade-button">DAMAGE - Cost: 10</button>
+        <button id="more-lasers-button">MORE LASERS - Cost: 10</button>
+        <button id="health-upgrade-button">HEALTH - Cost: 15</button>
+        <button id="laser-speed-upgrade-button">LASER SPEED - Cost: 20</button>
+    </div>
+    <div id="level-complete">LEVEL COMPLETE</div>
+    <div id="game-win">YOU WIN!</div>
+    <div id="game-paused">GAME PAUSED</div>
+    <div id="restart-confirm">
+        <h2>RESTART GAME?</h2>
+        <button id="restart-yes">YES</button>
+        <button id="restart-no">NO</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+}
+
+canvas {
+    display: block;
+}
+
+#start-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    font-size: 24px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#pause-button {
+    position: absolute;
+    bottom: 60px;
+    left: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    cursor: pointer;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#restart-button {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    cursor: pointer;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    font-size: 18px;
+    z-index: 10;
+}
+
+#game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 36px;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#try-again-button {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    font-size: 24px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    display: none;
+}
+
+#next-level-button {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    font-size: 24px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    display: none;
+}
+
+#level-complete {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 36px;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#game-win {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 36px;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#game-paused {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ff0000;
+    font-size: 36px;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#upgrade-window {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 200px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#upgrade-window h2 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+#upgrade-text {
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #ffff00;
+}
+
+#upgrade-window button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    cursor: pointer;
+}
+
+#upgrade-window button:disabled {
+    background-color: #666;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+#audio-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#audio-controls label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+#audio-controls input[type="range"] {
+    width: 100px;
+}
+
+#restart-confirm {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    z-index: 10;
+    display: none;
+}
+
+#restart-confirm h2 {
+    margin: 0 0 20px 0;
+    font-size: 36px;
+}
+
+#restart-confirm button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
