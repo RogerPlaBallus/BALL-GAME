@@ -138,6 +138,7 @@ class GameScene extends Phaser.Scene {
         this.canvas = document.querySelector('#game-container canvas');
         if (this.canvas) {
             this.canvas.style.display = 'none';
+            this.canvas.style.border = 'none';
         }
 
         // Damage upgrade button
@@ -195,7 +196,7 @@ class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        if (!this.gameStarted || this.gameOver || this.levelComplete || this.paused) return;
+        if (!this.gameStarted || this.gameOver || (this.levelComplete && !this.placingLavaZone && !this.placingPoisonZone) || this.paused) return;
 
         // Move enemies towards player
         this.enemies.children.entries.forEach(enemy => {
@@ -300,6 +301,13 @@ class GameScene extends Phaser.Scene {
 
         // Update HUD
         this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+
+        // Update stats
+        if (this.statsLevel) this.statsLevel.textContent = this.level;
+        if (this.statsHealth) this.statsHealth.textContent = this.playerHealth;
+        if (this.statsDamage) this.statsDamage.textContent = this.playerDamage;
+        if (this.statsLasers) this.statsLasers.textContent = this.moreLasersLevel + 1;
+        if (this.statsCrit) this.statsCrit.textContent = '0%';
 
         // Update upgrade buttons
         this.updateUpgradeButtons();
@@ -440,6 +448,7 @@ class GameScene extends Phaser.Scene {
         // Show canvas and upgrade window
         if (this.canvas) {
             this.canvas.style.display = 'block';
+            this.canvas.style.border = '1px solid #fff';
         }
         this.upgradeWindow.style.display = 'block';
         this.startLevel();
@@ -539,6 +548,13 @@ class GameScene extends Phaser.Scene {
 
         // Update HUD
         this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nEnemies: ${this.remainingEnemies}`);
+
+        // Reset stats
+        if (this.statsLevel) this.statsLevel.textContent = this.level;
+        if (this.statsHealth) this.statsHealth.textContent = this.playerHealth;
+        if (this.statsDamage) this.statsDamage.textContent = this.playerDamage;
+        if (this.statsLasers) this.statsLasers.textContent = this.moreLasersLevel + 1;
+        if (this.statsCrit) this.statsCrit.textContent = '0%';
 
         // Resume physics
         this.physics.resume();
