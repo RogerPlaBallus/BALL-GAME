@@ -3,3 +3,4 @@
 - Update numLasers calculation in update() to use moreLasersLevel + 1
 - Update updateUpgradeButtons() to set button text with current cost and level/5, disable if level >=5
 - In restartGame(), reset moreLasersLevel to 0 and reset lasers array to single graphics
+- [x] Delete laser speed upgrade: remove button from HTML, event listener, method, and update logic in game.js

@@ -144,11 +144,7 @@ class GameScene extends Phaser.Scene {
             this.buyHealthUpgrade();
         });
 
-        // Laser speed upgrade button
-        this.laserSpeedUpgradeButton = document.getElementById('laser-speed-upgrade-button');
-        this.laserSpeedUpgradeButton.addEventListener('click', () => {
-            this.buyLaserSpeedUpgrade();
-        });
+
 
         // Physics overlaps handled in update
 
@@ -420,10 +416,46 @@ class GameScene extends Phaser.Scene {
             if (index < this.targets.length) {
                 laser.clear();
                 const color = laserColors[index] || 0xff0000; // use color based on index, fallback to red
-                laser.lineStyle(2, color);
+                const playerX = this.canvasWidth / 2;
+                const playerY = this.canvasHeight / 2;
+                const targetX = this.targets[index].x;
+                const targetY = this.targets[index].y;
+
+                // Draw high-definition glow effect with sharper, bolder strokes
+                laser.lineStyle(12, color, 0.05);
                 laser.beginPath();
-                laser.moveTo(this.canvasWidth / 2, this.canvasHeight / 2);
-                laser.lineTo(this.targets[index].x, this.targets[index].y);
+                laser.moveTo(playerX, playerY);
+                laser.lineTo(targetX, targetY);
+                laser.strokePath();
+
+                laser.lineStyle(10, color, 0.15);
+                laser.beginPath();
+                laser.moveTo(playerX, playerY);
+                laser.lineTo(targetX, targetY);
+                laser.strokePath();
+
+                laser.lineStyle(8, color, 0.3);
+                laser.beginPath();
+                laser.moveTo(playerX, playerY);
+                laser.lineTo(targetX, targetY);
+                laser.strokePath();
+
+                laser.lineStyle(6, color, 0.5);
+                laser.beginPath();
+                laser.moveTo(playerX, playerY);
+                laser.lineTo(targetX, targetY);
+                laser.strokePath();
+
+                laser.lineStyle(4, color, 0.8);
+                laser.beginPath();
+                laser.moveTo(playerX, playerY);
+                laser.lineTo(targetX, targetY);
+                laser.strokePath();
+
+                laser.lineStyle(2, color, 1);
+                laser.beginPath();
+                laser.moveTo(playerX, playerY);
+                laser.lineTo(targetX, targetY);
                 laser.strokePath();
             } else {
                 laser.clear();
@@ -441,7 +473,7 @@ class GameScene extends Phaser.Scene {
         this.level++;
         this.enemiesToSpawn = 10 + (this.level - 1) * 10;
         this.enemiesPerBatch = this.level;
-        this.spawnInterval = 2000 * Math.pow(2, this.level - 1);
+        this.spawnInterval = this.level >= 2 ? 1500 : 2000 * Math.pow(2, this.level - 1);
         this.playerHealth = this.playerMaxHealth; // Reset health to max at start of new level
         this.startLevel();
     }
@@ -485,14 +517,7 @@ class GameScene extends Phaser.Scene {
         }
     }
 
-    buyLaserSpeedUpgrade() {
-        if (this.playerMoney >= 20) {
-            this.playerMoney -= 20;
-            this.laserSpeed -= 50; // faster laser
-            this.upgradeText.textContent = 'Laser speed increased!';
-            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
-        }
-    }
+
 
     togglePause() {
         this.paused = !this.paused;
@@ -514,7 +539,6 @@ class GameScene extends Phaser.Scene {
         this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/5)`;
         this.moreLasersButton.disabled = this.moreLasersLevel >= 5 || this.playerMoney < currentCost;
         this.healthUpgradeButton.disabled = this.playerMoney < 15;
-        this.laserSpeedUpgradeButton.disabled = this.playerMoney < 20;
     }
 
     showRestartConfirm() {
