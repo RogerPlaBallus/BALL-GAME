@@ -20,6 +20,10 @@ class GameScene extends Phaser.Scene {
         this.lavaZones = [];
         this.placingLavaZone = false;
         this.lavaZonePreview = null;
+        this.poisonZoneLevel = 0;
+        this.poisonZones = [];
+        this.placingPoisonZone = false;
+        this.poisonZonePreview = null;
         this.laserSpeed = 500; // milliseconds between laser damages
         this.baseSpeed = 50; // base enemy speed
         this.level = 1;
@@ -152,6 +156,12 @@ class GameScene extends Phaser.Scene {
         this.lavaZoneButton = document.getElementById('lava-zone-button');
         this.lavaZoneButton.addEventListener('click', () => {
             this.buyLavaZone();
+        });
+
+        // Poison zone upgrade button
+        this.poisonZoneButton = document.getElementById('poison-zone-button');
+        this.poisonZoneButton.addEventListener('click', () => {
+            this.buyPoisonZone();
         });
 
 
@@ -325,6 +335,31 @@ class GameScene extends Phaser.Scene {
             }
         }
 
+        // Handle poison zone placement
+        if (this.placingPoisonZone) {
+            const pointer = this.input.activePointer;
+            // Update preview position to follow mouse
+            if (this.poisonZonePreview) {
+                this.poisonZonePreview.setPosition(pointer.worldX, pointer.worldY);
+            }
+            // Place zone on click
+            if (pointer.isDown && this.poisonZonePreview) {
+                const x = pointer.worldX;
+                const y = pointer.worldY;
+                const zone = this.add.graphics();
+                zone.fillStyle(0x00ff00, 0.7); // green
+                zone.fillCircle(x, y, 50);
+                this.poisonZones.push({ x, y, radius: 50, graphics: zone });
+                this.poisonZonePreview.destroy();
+                this.poisonZonePreview = null;
+                this.placingPoisonZone = false;
+                this.upgradeText.textContent = 'Poison zone placed!';
+                this.time.delayedCall(2000, () => {
+                    this.upgradeText.textContent = '';
+                });
+            }
+        }
+
         // Lava zone damage
         this.lavaZones.forEach(zone => {
             this.enemies.children.entries.forEach(enemy => {
@@ -356,6 +391,11 @@ class GameScene extends Phaser.Scene {
             this.gameOverText.style.display = 'block';
             this.tryAgainButton.style.display = 'block';
             this.physics.pause();
+            // Clear poison zones on game over
+            this.poisonZones.forEach(zone => {
+                zone.graphics.destroy();
+            });
+            this.poisonZones = [];
         }
     }
 
@@ -389,6 +429,13 @@ class GameScene extends Phaser.Scene {
         }
         this.placingLavaZone = false;
 
+        // Reset poison zone placement state
+        if (this.poisonZonePreview) {
+            this.poisonZonePreview.destroy();
+            this.poisonZonePreview = null;
+        }
+        this.placingPoisonZone = false;
+
         // Hide overlays
         this.levelCompleteText.style.display = 'none';
         this.nextLevelButton.style.display = 'none';
@@ -408,6 +455,9 @@ class GameScene extends Phaser.Scene {
         this.lavaZoneLevel = 0;
         this.lavaZones = [];
         this.placingLavaZone = false;
+        this.poisonZoneLevel = 0;
+        this.poisonZones = [];
+        this.placingPoisonZone = false;
         this.level = 1;
         this.enemiesToSpawn = 10;
         this.enemiesSpawned = 0;
@@ -438,6 +488,12 @@ class GameScene extends Phaser.Scene {
             zone.graphics.destroy();
         });
         this.lavaZones = [];
+
+        // Clear poison zones
+        this.poisonZones.forEach(zone => {
+            zone.graphics.destroy();
+        });
+        this.poisonZones = [];
 
         // Clear lasers
         this.lasers.forEach(laser => laser.clear());
@@ -611,6 +667,21 @@ class GameScene extends Phaser.Scene {
         }
     }
 
+    buyPoisonZone() {
+        const costs = [10, 15, 20, 25];
+        if (this.poisonZoneLevel < 4 && this.playerMoney >= costs[this.poisonZoneLevel]) {
+            this.playerMoney -= costs[this.poisonZoneLevel];
+            this.poisonZoneLevel++;
+            this.placingPoisonZone = true;
+            this.poisonZonePreview = this.add.graphics();
+            this.poisonZonePreview.fillStyle(0x00ff00, 0.5); // green
+            this.poisonZonePreview.fillCircle(0, 0, 50);
+            this.upgradeText.textContent = 'Click to place poison zone circle';
+            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            this.updateUpgradeButtons();
+        }
+    }
+
 
 
     togglePause() {
@@ -637,6 +708,10 @@ class GameScene extends Phaser.Scene {
         const lavaCurrentCost = this.lavaZoneLevel < 4 ? lavaCosts[this.lavaZoneLevel] : 0;
         this.lavaZoneButton.textContent = `LAVA ZONE - Cost: ${lavaCurrentCost} (${this.lavaZoneLevel}/4)`;
         this.lavaZoneButton.disabled = this.lavaZoneLevel >= 4 || this.playerMoney < lavaCurrentCost;
+        const poisonCosts = [10, 15, 20, 25];
+        const poisonCurrentCost = this.poisonZoneLevel < 4 ? poisonCosts[this.poisonZoneLevel] : 0;
+        this.poisonZoneButton.textContent = `POISON ZONE - Cost: ${poisonCurrentCost} (${this.poisonZoneLevel}/4)`;
+        this.poisonZoneButton.disabled = this.poisonZoneLevel >= 4 || this.playerMoney < poisonCurrentCost;
     }
 
     showRestartConfirm() {
