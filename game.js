@@ -308,6 +308,8 @@ class GameScene extends Phaser.Scene {
         if (this.enemiesAlive === 0 && this.enemiesSpawned === this.enemiesToSpawn) {
             this.levelComplete = true;
             this.physics.pause();
+            // Clear lasers when level ends
+            this.lasers.forEach(laser => laser.clear());
             if (this.level === this.maxLevel) {
                 this.gameWinText.style.display = 'block';
             } else {
