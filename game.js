@@ -171,6 +171,16 @@ class GameScene extends Phaser.Scene {
             this.buyPoisonZone();
         });
 
+        // Stats elements
+        this.statsLevel = document.getElementById('stats-level');
+        this.statsHealth = document.getElementById('stats-health');
+        this.statsDamage = document.getElementById('stats-damage');
+        this.statsLasers = document.getElementById('stats-lasers');
+        this.statsCrit = document.getElementById('stats-crit');
+
+        // Hide stats window in menu
+        document.getElementById('stats-window').style.display = 'none';
+
 
 
         // Physics overlaps handled in update
@@ -445,12 +455,13 @@ class GameScene extends Phaser.Scene {
         this.startButton.style.display = 'none';
         this.pauseButton.style.display = 'block';
         this.restartButton.style.display = 'block';
-        // Show canvas and upgrade window
+        // Show canvas, upgrade window, and stats window
         if (this.canvas) {
             this.canvas.style.display = 'block';
             this.canvas.style.border = '1px solid #fff';
         }
         this.upgradeWindow.style.display = 'block';
+        document.getElementById('stats-window').style.display = 'flex';
         this.startLevel();
     }
 
@@ -691,6 +702,8 @@ class GameScene extends Phaser.Scene {
             this.upgradeText.textContent = `More lasers upgraded! Now ${this.moreLasersLevel + 1} lasers.`;
             this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
             this.updateUpgradeButtons(); // Update button text immediately after purchase
+            // Update stats immediately
+            if (this.statsLasers) this.statsLasers.textContent = this.moreLasersLevel + 1;
             // Clear the upgrade text after 5 seconds
             this.time.delayedCall(5000, () => {
                 this.upgradeText.textContent = '';
