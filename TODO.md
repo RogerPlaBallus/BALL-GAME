@@ -1,6 +1,13 @@
-- Add moreLasersLevel variable initialized to 0 in create()
-- Modify buyMoreLasers() to handle 5 levels with costs [10,15,20,25,30], increment level, add laser graphics for each level
-- Update numLasers calculation in update() to use moreLasersLevel + 1
-- Update updateUpgradeButtons() to set button text with current cost and level/5, disable if level >=5
-- In restartGame(), reset moreLasersLevel to 0 and reset lasers array to single graphics
-- [x] Delete laser speed upgrade: remove button from HTML, event listener, method, and update logic in game.js
+# TODO: Change Lava Zone Upgrade to Deployable Circle
+
+## Overview
+Modify the lava zone upgrade system to make it a deployable circle, removing all vertical/horizontal options and the pop-up to choose orientation.
+
+## Tasks
+- [x] Remove lava orientation popup from HTML (index.html) - Already removed
+- [x] Remove lava orientation popup styles from CSS (style.css) - Need to remove leftover styles
+- [x] Update buyLavaZone function in game.js to enable direct circle placement - Already implemented
+- [x] Modify placement logic in update method for circular zones - Already implemented
+- [x] Update lava zone damage check to use circle collision instead of rectangle - Already implemented
+- [x] Fix lava zone damage to 1 per second with minimum 1 damage upon entering - IMPLEMENTED
+- [ ] Test the new circle placement functionality

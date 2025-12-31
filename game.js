@@ -16,6 +16,10 @@ class GameScene extends Phaser.Scene {
         this.playerDamage = 1;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
+        this.lavaZoneLevel = 0;
+        this.lavaZones = [];
+        this.placingLavaZone = false;
+        this.lavaZonePreview = null;
         this.laserSpeed = 500; // milliseconds between laser damages
         this.baseSpeed = 50; // base enemy speed
         this.level = 1;
@@ -142,6 +146,12 @@ class GameScene extends Phaser.Scene {
         this.healthUpgradeButton = document.getElementById('health-upgrade-button');
         this.healthUpgradeButton.addEventListener('click', () => {
             this.buyHealthUpgrade();
+        });
+
+        // Lava zone upgrade button
+        this.lavaZoneButton = document.getElementById('lava-zone-button');
+        this.lavaZoneButton.addEventListener('click', () => {
+            this.buyLavaZone();
         });
 
 
@@ -290,6 +300,56 @@ class GameScene extends Phaser.Scene {
             }
         }
 
+        // Handle lava zone placement
+        if (this.placingLavaZone) {
+            const pointer = this.input.activePointer;
+            // Update preview position to follow mouse
+            if (this.lavaZonePreview) {
+                this.lavaZonePreview.setPosition(pointer.worldX, pointer.worldY);
+            }
+            // Place zone on click
+            if (pointer.isDown && this.lavaZonePreview) {
+                const x = pointer.worldX;
+                const y = pointer.worldY;
+                const zone = this.add.graphics();
+                zone.fillStyle(0xff4500, 0.7); // orange red
+                zone.fillCircle(x, y, 50);
+                this.lavaZones.push({ x, y, radius: 50, graphics: zone });
+                this.lavaZonePreview.destroy();
+                this.lavaZonePreview = null;
+                this.placingLavaZone = false;
+                this.upgradeText.textContent = 'Lava zone placed!';
+                this.time.delayedCall(2000, () => {
+                    this.upgradeText.textContent = '';
+                });
+            }
+        }
+
+        // Lava zone damage
+        this.lavaZones.forEach(zone => {
+            this.enemies.children.entries.forEach(enemy => {
+                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
+                const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
+                if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
+                    enemy.damageTaken += 1;
+                    enemy.health -= 1;
+                    if (enemy.damageText) {
+                        enemy.damageText.setText("-" + enemy.damageTaken);
+                    } else {
+                        enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                    }
+                    if (enemy.health <= 0) {
+                        if (enemy.damageText) enemy.damageText.destroy();
+                        enemy.graphics.destroy();
+                        enemy.destroy();
+                        this.enemiesAlive--;
+                        this.remainingEnemies--;
+                        this.playerMoney++;
+                    }
+                }
+            });
+        });
+
         // Check game over
         if (this.playerHealth <= 0) {
             this.gameOver = true;
@@ -316,10 +376,19 @@ class GameScene extends Phaser.Scene {
         this.spawnTimer = 0;
         // Clear any remaining enemies
         this.enemies.children.entries.forEach(enemy => {
+            if (enemy.damageText) enemy.damageText.destroy();
             enemy.graphics.destroy();
             enemy.destroy();
         });
         this.enemies.clear();
+
+        // Reset lava zone placement state
+        if (this.lavaZonePreview) {
+            this.lavaZonePreview.destroy();
+            this.lavaZonePreview = null;
+        }
+        this.placingLavaZone = false;
+
         // Hide overlays
         this.levelCompleteText.style.display = 'none';
         this.nextLevelButton.style.display = 'none';
@@ -336,6 +405,9 @@ class GameScene extends Phaser.Scene {
         this.playerMoney = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
+        this.lavaZoneLevel = 0;
+        this.lavaZones = [];
+        this.placingLavaZone = false;
         this.level = 1;
         this.enemiesToSpawn = 10;
         this.enemiesSpawned = 0;
@@ -355,10 +427,17 @@ class GameScene extends Phaser.Scene {
         // Clear enemies
         const enemiesToDestroy = [...this.enemies.children.entries];
         enemiesToDestroy.forEach(enemy => {
+            if (enemy.damageText) enemy.damageText.destroy();
             if (enemy.graphics) enemy.graphics.destroy();
             enemy.destroy();
         });
         this.enemies.clear();
+
+        // Clear lava zones
+        this.lavaZones.forEach(zone => {
+            zone.graphics.destroy();
+        });
+        this.lavaZones = [];
 
         // Clear lasers
         this.lasers.forEach(laser => laser.clear());
@@ -517,6 +596,21 @@ class GameScene extends Phaser.Scene {
         }
     }
 
+    buyLavaZone() {
+        const costs = [10, 15, 20, 25];
+        if (this.lavaZoneLevel < 4 && this.playerMoney >= costs[this.lavaZoneLevel]) {
+            this.playerMoney -= costs[this.lavaZoneLevel];
+            this.lavaZoneLevel++;
+            this.placingLavaZone = true;
+            this.lavaZonePreview = this.add.graphics();
+            this.lavaZonePreview.fillStyle(0xff4500, 0.5); // orange red
+            this.lavaZonePreview.fillCircle(0, 0, 50);
+            this.upgradeText.textContent = 'Click to place lava zone circle';
+            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            this.updateUpgradeButtons();
+        }
+    }
+
 
 
     togglePause() {
@@ -539,6 +633,10 @@ class GameScene extends Phaser.Scene {
         this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/5)`;
         this.moreLasersButton.disabled = this.moreLasersLevel >= 5 || this.playerMoney < currentCost;
         this.healthUpgradeButton.disabled = this.playerMoney < 15;
+        const lavaCosts = [10, 15, 20, 25];
+        const lavaCurrentCost = this.lavaZoneLevel < 4 ? lavaCosts[this.lavaZoneLevel] : 0;
+        this.lavaZoneButton.textContent = `LAVA ZONE - Cost: ${lavaCurrentCost} (${this.lavaZoneLevel}/4)`;
+        this.lavaZoneButton.disabled = this.lavaZoneLevel >= 4 || this.playerMoney < lavaCurrentCost;
     }
 
     showRestartConfirm() {
@@ -548,6 +646,8 @@ class GameScene extends Phaser.Scene {
     hideRestartConfirm() {
         this.restartConfirm.style.display = 'none';
     }
+
+
 }
 
 const config = {
