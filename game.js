@@ -10,10 +10,12 @@ class GameScene extends Phaser.Scene {
 
     create() {
         // Game variables
-        this.playerHealth = 5;
+        this.playerMaxHealth = 5;
+        this.playerHealth = this.playerMaxHealth;
         this.playerMoney = 0;
         this.playerDamage = 1;
         this.moreLasers = false;
+        this.moreLasersLevel = 0;
         this.laserSpeed = 500; // milliseconds between laser damages
         this.baseSpeed = 50; // base enemy speed
         this.level = 1;
@@ -198,7 +200,7 @@ class GameScene extends Phaser.Scene {
                 return distA - distB;
             });
             // Target up to the number of lasers available
-            const numLasers = this.moreLasers ? 2 : 1;
+            const numLasers = this.moreLasersLevel + 1;
             for (let i = 0; i < Math.min(numLasers, sortedEnemies.length); i++) {
                 this.targets.push({ x: sortedEnemies[i].x, y: sortedEnemies[i].y });
             }
@@ -333,8 +335,11 @@ class GameScene extends Phaser.Scene {
 
     restartGame() {
         // Reset game variables
-        this.playerHealth = 5;
+        this.playerMaxHealth = 100;
+        this.playerHealth = this.playerMaxHealth;
         this.playerMoney = 0;
+        this.moreLasers = false;
+        this.moreLasersLevel = 0;
         this.level = 1;
         this.enemiesToSpawn = 10;
         this.enemiesSpawned = 0;
@@ -436,6 +441,7 @@ class GameScene extends Phaser.Scene {
         this.enemiesToSpawn = 10 + (this.level - 1) * 10;
         this.enemiesPerBatch = this.level;
         this.spawnInterval = 2000 * Math.pow(2, this.level - 1);
+        this.playerHealth = this.playerMaxHealth; // Reset health to max at start of new level
         this.startLevel();
     }
 
@@ -454,18 +460,26 @@ class GameScene extends Phaser.Scene {
     }
 
     buyMoreLasers() {
-        if (this.playerMoney >= 10 && !this.moreLasers) {
-            this.playerMoney -= 10;
+        const costs = [10, 15, 20, 25, 30];
+        if (this.moreLasersLevel < 5 && this.playerMoney >= costs[this.moreLasersLevel]) {
+            this.playerMoney -= costs[this.moreLasersLevel];
+            this.moreLasersLevel++;
             this.moreLasers = true;
             this.lasers.push(this.add.graphics());
+            this.upgradeText.textContent = `More lasers upgraded! Now ${this.moreLasersLevel + 1} lasers.`;
             this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            this.updateUpgradeButtons(); // Update button text immediately after purchase
+            // Clear the upgrade text after 5 seconds
+            this.time.delayedCall(5000, () => {
+                this.upgradeText.textContent = '';
+            });
         }
     }
 
     buyHealthUpgrade() {
         if (this.playerMoney >= 15) {
             this.playerMoney -= 15;
-            this.playerHealth += 1;
+            this.playerMaxHealth += 1;
             this.upgradeText.textContent = 'Health increased by 1!';
         }
     }
@@ -494,7 +508,10 @@ class GameScene extends Phaser.Scene {
 
     updateUpgradeButtons() {
         this.damageUpgradeButton.disabled = this.playerMoney < 10;
-        this.moreLasersButton.disabled = this.playerMoney < 10 || this.moreLasers;
+        const costs = [10, 15, 20, 25, 30];
+        const currentCost = this.moreLasersLevel < 5 ? costs[this.moreLasersLevel] : 0;
+        this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/5)`;
+        this.moreLasersButton.disabled = this.moreLasersLevel >= 5 || this.playerMoney < currentCost;
         this.healthUpgradeButton.disabled = this.playerMoney < 15;
         this.laserSpeedUpgradeButton.disabled = this.playerMoney < 20;
     }

@@ -1,0 +1,5 @@
+- Add moreLasersLevel variable initialized to 0 in create()
+- Modify buyMoreLasers() to handle 5 levels with costs [10,15,20,25,30], increment level, add laser graphics for each level
+- Update numLasers calculation in update() to use moreLasersLevel + 1
+- Update updateUpgradeButtons() to set button text with current cost and level/5, disable if level >=5
+- In restartGame(), reset moreLasersLevel to 0 and reset lasers array to single graphics
