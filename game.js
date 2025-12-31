@@ -131,8 +131,14 @@ class GameScene extends Phaser.Scene {
 
         // Upgrade window
         this.upgradeWindow = document.getElementById('upgrade-window');
-        this.upgradeWindow.style.display = 'block';
+        this.upgradeWindow.style.display = 'none';
         this.upgradeText = document.getElementById('upgrade-text');
+
+        // Hide canvas initially
+        this.canvas = document.querySelector('#game-container canvas');
+        if (this.canvas) {
+            this.canvas.style.display = 'none';
+        }
 
         // Damage upgrade button
         this.damageUpgradeButton = document.getElementById('damage-upgrade-button');
@@ -385,6 +391,31 @@ class GameScene extends Phaser.Scene {
             });
         });
 
+        // Poison zone damage
+        this.poisonZones.forEach(zone => {
+            this.enemies.children.entries.forEach(enemy => {
+                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
+                const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
+                if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
+                    enemy.damageTaken += 1;
+                    enemy.health -= 1;
+                    if (enemy.damageText) {
+                        enemy.damageText.setText("-" + enemy.damageTaken);
+                    } else {
+                        enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                    }
+                    if (enemy.health <= 0) {
+                        if (enemy.damageText) enemy.damageText.destroy();
+                        enemy.graphics.destroy();
+                        enemy.destroy();
+                        this.enemiesAlive--;
+                        this.remainingEnemies--;
+                        this.playerMoney++;
+                    }
+                }
+            });
+        });
+
         // Check game over
         if (this.playerHealth <= 0) {
             this.gameOver = true;
@@ -404,6 +435,11 @@ class GameScene extends Phaser.Scene {
         this.startButton.style.display = 'none';
         this.pauseButton.style.display = 'block';
         this.restartButton.style.display = 'block';
+        // Show canvas and upgrade window
+        if (this.canvas) {
+            this.canvas.style.display = 'block';
+        }
+        this.upgradeWindow.style.display = 'block';
         this.startLevel();
     }
 

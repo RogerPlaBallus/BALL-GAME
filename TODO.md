@@ -24,7 +24,18 @@ Add a new upgrade called POISON ZONE (0/4) that costs the same as lava zones. It
 - [x] Implement buyPoisonZone function in game.js
 - [x] Update updateUpgradeButtons to include poison zone
 - [x] Add poison zone placement logic in update method
-- [x] Add poison zone damage logic in update method
+- [x] Add poison zone damage logic in update method - IMPLEMENTED
 - [x] Clear poison zones in restartGame
 - [x] Reset placingPoisonZone in startLevel
 - [ ] Test the poison zone functionality
+
+# TODO: Hide Canvas and Upgrade Window in Menu State
+
+## Overview
+When the game is in the 'menu' state (before pressing PLAY), hide the canvas and upgrade window. Show them after pressing PLAY.
+
+## Tasks
+- [ ] Set canvas display to 'none' initially in game.js create() method
+- [ ] Set upgrade window display to 'none' initially in game.js create() method
+- [ ] In startGame() method, set canvas display to 'block' and upgrade window to 'block'
+- [ ] Test the visibility changes
