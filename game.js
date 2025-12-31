@@ -415,10 +415,11 @@ class GameScene extends Phaser.Scene {
     }
 
     drawLaser() {
+        const laserColors = [0xffffff, 0xffff00, 0x0000ff, 0xff00ff, 0x00ff00, 0xff0000]; // white, yellow, blue, pink, green, red
         this.lasers.forEach((laser, index) => {
             if (index < this.targets.length) {
                 laser.clear();
-                const color = index === 0 ? 0xffffff : 0xff0000; // white for first, red for second
+                const color = laserColors[index] || 0xff0000; // use color based on index, fallback to red
                 laser.lineStyle(2, color);
                 laser.beginPath();
                 laser.moveTo(this.canvasWidth / 2, this.canvasHeight / 2);
