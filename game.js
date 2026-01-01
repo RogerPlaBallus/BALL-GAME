@@ -262,7 +262,7 @@ class GameScene extends Phaser.Scene {
                                 enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
                             }
                             if (enemy.health === 1) {
-                                this.killsound.play();
+                                this.sound.add('killsound', { volume: this.killsound.volume }).play();
                             }
                             if (enemy.health <= 0) {
                                 if (enemy.damageText) enemy.damageText.destroy();
