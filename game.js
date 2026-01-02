@@ -24,6 +24,10 @@ class GameScene extends Phaser.Scene {
         this.poisonZones = [];
         this.placingPoisonZone = false;
         this.poisonZonePreview = null;
+        this.spikesLevel = 0;
+        this.spikes = [];
+        this.placingSpikes = false;
+        this.spikesPreview = null;
         this.laserSpeed = 500; // milliseconds between laser damages
         this.baseSpeed = 50; // base enemy speed
         this.level = 1;
@@ -46,6 +50,7 @@ class GameScene extends Phaser.Scene {
         this.targetY = 0;
         this.targets = [];
         this.damageTexts = [];
+        this.pointerWasDown = false;
 
         // Create lava particle texture
         this.lavaParticleTexture = this.add.graphics();
@@ -185,6 +190,12 @@ class GameScene extends Phaser.Scene {
             this.buyPoisonZone();
         });
 
+        // Spikes upgrade button
+        this.spikesButton = document.getElementById('spikes-button');
+        this.spikesButton.addEventListener('click', () => {
+            this.buySpikes();
+        });
+
         // Stats elements
         this.statsLevel = document.getElementById('stats-level');
         this.statsHealth = document.getElementById('stats-health');
@@ -217,7 +228,7 @@ class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        if (!this.gameStarted || this.gameOver || (this.levelComplete && !this.placingLavaZone && !this.placingPoisonZone) || this.paused) return;
+        if (!this.gameStarted || this.gameOver || (this.levelComplete && !this.placingLavaZone && !this.placingPoisonZone && !this.placingSpikes) || this.paused) return;
 
         // Move enemies towards player
         this.enemies.children.entries.forEach(enemy => {
@@ -469,6 +480,46 @@ class GameScene extends Phaser.Scene {
             }
         }
 
+        // Handle spikes placement
+        if (this.placingSpikes) {
+            const pointer = this.input.activePointer;
+            // Update preview position to follow mouse
+            if (this.spikesPreview) {
+                this.spikesPreview.setPosition(pointer.worldX, pointer.worldY);
+            }
+            // Place spikes on click
+            if (!this.pointerWasDown && pointer.isDown && this.spikesPreview) {
+                const x = pointer.worldX;
+                const y = pointer.worldY;
+                const spike = this.add.graphics();
+                spike.fillStyle(0x808080, 0.7); // grey
+                spike.fillCircle(x, y, 15);
+                // Add inner wave effect
+                const innerWave = this.add.graphics();
+                innerWave.fillStyle(0x808080, 0.4);
+                innerWave.fillCircle(0, 0, 7);
+                innerWave.setPosition(x, y);
+                // Animate inner wave for movement effect: starts small, grows to circle size, shrinks back
+                this.tweens.add({
+                    targets: innerWave,
+                    scaleX: { from: 0.1, to: 2.0 },
+                    scaleY: { from: 0.1, to: 2.0 },
+                    duration: 2000,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+                this.spikes.push({ x, y, radius: 15, graphics: spike, innerWave });
+                this.spikesPreview.destroy();
+                this.spikesPreview = null;
+                this.placingSpikes = false;
+                this.upgradeText.textContent = 'Spikes placed!';
+                this.time.delayedCall(2000, () => {
+                    this.upgradeText.textContent = '';
+                });
+            }
+        }
+
         // Lava zone damage
         this.lavaZones.forEach(zone => {
             this.enemies.children.entries.forEach(enemy => {
@@ -519,6 +570,38 @@ class GameScene extends Phaser.Scene {
             });
         });
 
+        // Spikes damage
+        this.spikes.forEach(spike => {
+            this.enemies.children.entries.forEach(enemy => {
+                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
+                const spikeCircle = new Phaser.Geom.Circle(spike.x, spike.y, spike.radius);
+                if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, spikeCircle)) {
+                    if (!enemy.lastSpikeDamage) {
+                        enemy.lastSpikeDamage = 0;
+                    }
+                    const currentTime = this.time.now;
+                    if (currentTime - enemy.lastSpikeDamage >= 1000) { // 1 damage per second
+                        enemy.damageTaken += 1;
+                        enemy.health -= 1;
+                        enemy.lastSpikeDamage = currentTime;
+                        if (enemy.damageText) {
+                            enemy.damageText.setText("-" + enemy.damageTaken);
+                        } else {
+                            enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                        }
+                        if (enemy.health <= 0) {
+                            if (enemy.damageText) { enemy.damageText.destroy(); }
+                            enemy.graphics.destroy();
+                            enemy.destroy();
+                            this.enemiesAlive--;
+                            this.remainingEnemies--;
+                            this.playerMoney++;
+                        }
+                    }
+                }
+            });
+        });
+
         // Check game over
         if (this.playerHealth <= 0) {
             this.gameOver = true;
@@ -533,6 +616,12 @@ class GameScene extends Phaser.Scene {
                 zone.graphics.destroy();
             });
             this.poisonZones = [];
+            // Clear spikes on game over
+            this.spikes.forEach(spike => {
+                if (spike.innerWave) spike.innerWave.destroy();
+                spike.graphics.destroy();
+            });
+            this.spikes = [];
         }
     }
 
@@ -580,6 +669,13 @@ class GameScene extends Phaser.Scene {
         }
         this.placingPoisonZone = false;
 
+        // Reset spikes placement state
+        if (this.spikesPreview) {
+            this.spikesPreview.destroy();
+            this.spikesPreview = null;
+        }
+        this.placingSpikes = false;
+
         // Hide overlays
         this.levelCompleteText.style.display = 'none';
         this.nextLevelButton.style.display = 'none';
@@ -602,6 +698,9 @@ class GameScene extends Phaser.Scene {
         this.poisonZoneLevel = 0;
         this.poisonZones = [];
         this.placingPoisonZone = false;
+        this.spikesLevel = 0;
+        this.spikes = [];
+        this.placingSpikes = false;
         this.level = 1;
         this.enemiesToSpawn = 10;
         this.enemiesSpawned = 0;
@@ -688,6 +787,7 @@ class GameScene extends Phaser.Scene {
         enemy.setCircle(15);
         enemy.health = 5;
         enemy.damageTaken = 0;
+        enemy.lastSpikeDamage = 0;
         enemy.setCollideWorldBounds(false);
 
         // Add graphics for enemy
@@ -824,6 +924,22 @@ class GameScene extends Phaser.Scene {
         }
     }
 
+    buySpikes() {
+        const costs = [10,10,10,10,10,10,10,10,10,10, 50,50,50,50,50,50,50,50,50,50, 100,100,100,100,100,100,100,100,100,100]; // first 10: 10, next 10: 50, next 10: 100
+        const levelIndex = this.spikesLevel;
+        if (this.spikesLevel < 30 && this.playerMoney >= costs[levelIndex]) {
+            this.playerMoney -= costs[levelIndex];
+            this.spikesLevel++;
+            this.placingSpikes = true;
+            this.spikesPreview = this.add.graphics();
+            this.spikesPreview.fillStyle(0x808080, 0.5); // grey
+            this.spikesPreview.fillCircle(0, 0, 15);
+            this.upgradeText.textContent = 'Click to place spikes';
+            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            this.updateUpgradeButtons();
+        }
+    }
+
 
 
     togglePause() {
@@ -854,6 +970,10 @@ class GameScene extends Phaser.Scene {
         const poisonCurrentCost = this.poisonZoneLevel < 4 ? poisonCosts[this.poisonZoneLevel] : 0;
         this.poisonZoneButton.textContent = `POISON ZONE - Cost: ${poisonCurrentCost} (${this.poisonZoneLevel}/4)`;
         this.poisonZoneButton.disabled = this.poisonZoneLevel >= 4 || this.playerMoney < poisonCurrentCost;
+        const spikesCosts = [10,10,10,10,10,10,10,10,10,10, 50,50,50,50,50,50,50,50,50,50, 100,100,100,100,100,100,100,100,100,100]; // first 10: 10, next 10: 50, next 10: 100
+        const spikesCurrentCost = this.spikesLevel < 30 ? spikesCosts[this.spikesLevel] : 0;
+        this.spikesButton.textContent = `SPIKES - Cost: ${spikesCurrentCost} (${this.spikesLevel}/30)`;
+        this.spikesButton.disabled = this.spikesLevel >= 30 || this.playerMoney < spikesCurrentCost;
     }
 
     showRestartConfirm() {
