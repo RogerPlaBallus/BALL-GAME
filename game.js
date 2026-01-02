@@ -54,6 +54,13 @@ class GameScene extends Phaser.Scene {
         this.lavaParticleTexture.generateTexture('lavaParticle');
         this.lavaParticleTexture.destroy();
 
+        // Create poison particle texture
+        this.poisonParticleTexture = this.add.graphics();
+        this.poisonParticleTexture.fillStyle(0x00ff00);
+        this.poisonParticleTexture.fillCircle(0, 0, 2);
+        this.poisonParticleTexture.generateTexture('poisonParticle');
+        this.poisonParticleTexture.destroy();
+
         // Get canvas dimensions
         this.canvasWidth = this.game.config.width;
         this.canvasHeight = this.game.config.height;
@@ -415,7 +422,43 @@ class GameScene extends Phaser.Scene {
                 const zone = this.add.graphics();
                 zone.fillStyle(0x00ff00, 0.7); // green
                 zone.fillCircle(x, y, 50);
-                this.poisonZones.push({ x, y, radius: 50, graphics: zone });
+                // Add particle emitter for bubbling poison effect
+                const emitter = this.add.particles(x, y, 'poisonParticle', {
+                    speed: { min: 10, max: 50 },
+                    scale: { start: 0.5, end: 0 },
+                    lifespan: 1000,
+                    frequency: 100,
+                    quantity: 2,
+                    emitting: true
+                });
+                // Add glow for toxic effect
+                const glow = this.add.graphics();
+                glow.fillStyle(0x00ff00, 0.3);
+                glow.fillCircle(x, y, 60);
+                // Animate glow for flickering toxic effect
+                this.tweens.add({
+                    targets: glow,
+                    alpha: { from: 0.3, to: 0.5 },
+                    duration: 300,
+                    yoyo: true,
+                    repeat: -1
+                });
+                // Add inner wave effect
+                const innerWave = this.add.graphics();
+                innerWave.fillStyle(0x00ff00, 0.4);
+                innerWave.fillCircle(0, 0, 20);
+                innerWave.setPosition(x, y);
+                // Animate inner wave for movement effect: starts small, grows to circle size, shrinks back
+                this.tweens.add({
+                    targets: innerWave,
+                    scaleX: { from: 0.1, to: 2.0 },
+                    scaleY: { from: 0.1, to: 2.0 },
+                    duration: 2000,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+                this.poisonZones.push({ x, y, radius: 50, graphics: zone, emitter, glow, innerWave });
                 this.poisonZonePreview.destroy();
                 this.poisonZonePreview = null;
                 this.placingPoisonZone = false;
@@ -484,6 +527,9 @@ class GameScene extends Phaser.Scene {
             this.physics.pause();
             // Clear poison zones on game over
             this.poisonZones.forEach(zone => {
+                if (zone.emitter) zone.emitter.destroy();
+                if (zone.glow) zone.glow.destroy();
+                if (zone.innerWave) zone.innerWave.destroy();
                 zone.graphics.destroy();
             });
             this.poisonZones = [];
@@ -590,6 +636,9 @@ class GameScene extends Phaser.Scene {
         this.lavaZones = [];
         // Clear poison zones
         this.poisonZones.forEach(zone => {
+            if (zone.emitter) zone.emitter.destroy();
+            if (zone.glow) zone.glow.destroy();
+            if (zone.innerWave) zone.innerWave.destroy();
             zone.graphics.destroy();
         });
         this.poisonZones = [];
