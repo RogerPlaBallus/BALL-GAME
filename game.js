@@ -618,38 +618,23 @@ class GameScene extends Phaser.Scene {
                 const targetX = this.targets[index].x;
                 const targetY = this.targets[index].y;
 
-                // Draw high-definition glow effect with sharper, bolder strokes
-                laser.lineStyle(12, color, 0.05);
+                // Draw sharp, high-quality laser with solid core and minimal glow
+                // Solid core for sharpness
+                laser.lineStyle(3, color, 1);
                 laser.beginPath();
                 laser.moveTo(playerX, playerY);
                 laser.lineTo(targetX, targetY);
                 laser.strokePath();
 
-                laser.lineStyle(10, color, 0.15);
+                // Outer glow layer
+                laser.lineStyle(8, color, 0.4);
                 laser.beginPath();
                 laser.moveTo(playerX, playerY);
                 laser.lineTo(targetX, targetY);
                 laser.strokePath();
 
-                laser.lineStyle(8, color, 0.3);
-                laser.beginPath();
-                laser.moveTo(playerX, playerY);
-                laser.lineTo(targetX, targetY);
-                laser.strokePath();
-
-                laser.lineStyle(6, color, 0.5);
-                laser.beginPath();
-                laser.moveTo(playerX, playerY);
-                laser.lineTo(targetX, targetY);
-                laser.strokePath();
-
-                laser.lineStyle(4, color, 0.8);
-                laser.beginPath();
-                laser.moveTo(playerX, playerY);
-                laser.lineTo(targetX, targetY);
-                laser.strokePath();
-
-                laser.lineStyle(2, color, 1);
+                // Subtle outer glow
+                laser.lineStyle(12, color, 0.2);
                 laser.beginPath();
                 laser.moveTo(playerX, playerY);
                 laser.lineTo(targetX, targetY);
