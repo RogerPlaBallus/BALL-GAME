@@ -178,9 +178,6 @@ class GameScene extends Phaser.Scene {
         this.statsLasers = document.getElementById('stats-lasers');
         this.statsCrit = document.getElementById('stats-crit');
 
-        // Hide stats window in menu
-        document.getElementById('stats-window').style.display = 'none';
-
 
 
         // Physics overlaps handled in update
