@@ -12,7 +12,8 @@ body {
 
 #game-container {
     position: relative;
-    margin-left: 380px;
+    margin-left: 328px;
+    top: 1px;
 }
 
 canvas {
@@ -135,8 +136,8 @@ canvas {
 
 #next-level-button {
     position: absolute;
-    top: 70%;
-    left: 50%;
+    top: calc(1px + 300px + 100px);
+    left: calc(328px + 400px);
     transform: translate(-50%, -50%);
     padding: 20px 40px;
     font-size: 24px;
@@ -150,8 +151,8 @@ canvas {
 
 #level-complete {
     position: absolute;
-    top: 40%;
-    left: 50%;
+    top: calc(1px + 280px);
+    left: calc(328px + 400px);
     transform: translate(-50%, -50%);
     color: #fff;
     font-size: 36px;
@@ -307,8 +308,8 @@ canvas {
 
 #restart-confirm {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: calc(1px + 300px);
+    left: calc(328px + 400px);
     transform: translate(-50%, -50%);
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     padding: 20px;
