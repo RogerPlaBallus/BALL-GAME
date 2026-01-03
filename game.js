@@ -14,6 +14,7 @@ class GameScene extends Phaser.Scene {
         this.playerHealth = this.playerMaxHealth;
         this.playerMoney = 0;
         this.playerDamage = 1;
+        this.playerCritChance = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
         this.lavaZoneLevel = 0;
@@ -203,6 +204,11 @@ class GameScene extends Phaser.Scene {
         this.hudMoney = document.getElementById('hud-money');
         this.hudEnemies = document.getElementById('hud-enemies');
 
+        // Crit message text (inside canvas)
+        this.critMessage = this.add.text(this.canvasWidth / 2, this.canvasHeight / 2 - 50, '', { fontSize: '24px', fill: '#ffff00', fontStyle: 'bold' });
+        this.critMessage.setOrigin(0.5);
+        this.critMessage.setVisible(false);
+
 
 
         // Physics overlaps handled in update
@@ -276,8 +282,13 @@ class GameScene extends Phaser.Scene {
                 this.targets.forEach((target, index) => {
                     this.enemies.children.entries.forEach(enemy => {
                         if (this.checkLaserHit(target.x, target.y, enemy)) {
-                            enemy.damageTaken += this.playerDamage;
-                            enemy.health -= this.playerDamage;
+                            let damage = this.playerDamage;
+                            const isCrit = Math.random() < this.playerCritChance / 100;
+                            if (isCrit) {
+                                damage *= 2;
+                            }
+                            enemy.damageTaken += damage;
+                            enemy.health -= damage;
                             if (enemy.damageText) {
                                 enemy.damageText.setText("-" + enemy.damageTaken);
                             } else {
@@ -342,7 +353,7 @@ class GameScene extends Phaser.Scene {
         if (this.statsHealth) this.statsHealth.textContent = this.playerHealth;
         if (this.statsDamage) this.statsDamage.textContent = this.playerDamage;
         if (this.statsLasers) this.statsLasers.textContent = this.moreLasersLevel + 1;
-        if (this.statsCrit) this.statsCrit.textContent = '0%';
+        if (this.statsCrit) this.statsCrit.textContent = this.playerCritChance + '%';
 
         // Update upgrade buttons
         this.updateUpgradeButtons();
@@ -353,6 +364,15 @@ class GameScene extends Phaser.Scene {
             this.physics.pause();
             // Clear lasers when level ends
             this.lasers.forEach(laser => laser.clear());
+            // Check for crit chance upgrade at levels 5, 10, 15
+            if (this.level % 5 === 0) {
+                this.playerCritChance += 10;
+                this.critMessage.setText('Crit Chance +10%');
+                this.critMessage.setVisible(true);
+                this.time.delayedCall(2000, () => {
+                    this.critMessage.setVisible(false);
+                });
+            }
             if (this.level === this.maxLevel) {
                 this.gameWinText.style.display = 'block';
             } else {

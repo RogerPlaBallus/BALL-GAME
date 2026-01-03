@@ -176,7 +176,7 @@ canvas {
 #game-paused {
     position: absolute;
     top: 40%;
-    left: 57%;
+    left: 53%;
     transform: translate(-50%, -50%);
     color: #ff0000;
     font-size: 36px;
