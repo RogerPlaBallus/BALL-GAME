@@ -87,12 +87,6 @@ class GameScene extends Phaser.Scene {
             this.lasers.push(this.add.graphics());
         }
 
-        // HUD
-        this.hudText = this.add.text(10, 10, `Level ${this.level}\nHealth: ${this.playerHealth}\nEnemies: ${this.remainingEnemies}`, {
-            fontSize: '18px',
-            fill: '#ffffff'
-        });
-
         // Start button
         this.startButton = document.getElementById('start-button');
         this.startButton.addEventListener('click', () => {
@@ -202,6 +196,12 @@ class GameScene extends Phaser.Scene {
         this.statsDamage = document.getElementById('stats-damage');
         this.statsLasers = document.getElementById('stats-lasers');
         this.statsCrit = document.getElementById('stats-crit');
+
+        // HUD elements
+        this.hudLevel = document.getElementById('hud-level');
+        this.hudHealth = document.getElementById('hud-health');
+        this.hudMoney = document.getElementById('hud-money');
+        this.hudEnemies = document.getElementById('hud-enemies');
 
 
 
@@ -332,7 +332,10 @@ class GameScene extends Phaser.Scene {
         }
 
         // Update HUD
-        this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+        if (this.hudLevel) this.hudLevel.textContent = this.level;
+        if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+        if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+        if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
 
         // Update stats
         if (this.statsLevel) this.statsLevel.textContent = this.level;
@@ -637,6 +640,7 @@ class GameScene extends Phaser.Scene {
         }
         this.upgradeWindow.style.display = 'block';
         document.getElementById('stats-window').style.display = 'flex';
+        document.getElementById('hud-window').style.display = 'flex';
         document.getElementById('audio-controls').style.display = 'flex';
         this.startLevel();
     }
@@ -748,7 +752,10 @@ class GameScene extends Phaser.Scene {
         this.lasers = [this.add.graphics()];
 
         // Update HUD
-        this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nEnemies: ${this.remainingEnemies}`);
+        if (this.hudLevel) this.hudLevel.textContent = this.level;
+        if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+        if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+        if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
 
         // Reset stats
         if (this.statsLevel) this.statsLevel.textContent = this.level;
@@ -864,7 +871,10 @@ class GameScene extends Phaser.Scene {
             this.playerMoney -= 10;
             this.playerDamage += 1;
             this.upgradeText.textContent = 'Damage increased by 1!';
-            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
         }
     }
 
@@ -876,7 +886,10 @@ class GameScene extends Phaser.Scene {
             this.moreLasers = true;
             this.lasers.push(this.add.graphics());
             this.upgradeText.textContent = `More lasers upgraded! Now ${this.moreLasersLevel + 1} lasers.`;
-            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons(); // Update button text immediately after purchase
             // Update stats immediately
             if (this.statsLasers) this.statsLasers.textContent = this.moreLasersLevel + 1;
@@ -905,7 +918,10 @@ class GameScene extends Phaser.Scene {
             this.lavaZonePreview.fillStyle(0xff4500, 0.5); // orange red
             this.lavaZonePreview.fillCircle(0, 0, 50);
             this.upgradeText.textContent = 'Click to place lava zone circle';
-            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons();
         }
     }
@@ -920,7 +936,10 @@ class GameScene extends Phaser.Scene {
             this.poisonZonePreview.fillStyle(0x00ff00, 0.5); // green
             this.poisonZonePreview.fillCircle(0, 0, 50);
             this.upgradeText.textContent = 'Click to place poison zone circle';
-            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons();
         }
     }
@@ -936,7 +955,10 @@ class GameScene extends Phaser.Scene {
             this.spikesPreview.fillStyle(0x808080, 0.5); // grey
             this.spikesPreview.fillCircle(0, 0, 15);
             this.upgradeText.textContent = 'Click to place spikes';
-            this.hudText.setText(`Level ${this.level}\nHealth: ${this.playerHealth}\nMoney: ${this.playerMoney}\nEnemies: ${this.remainingEnemies}`);
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons();
         }
     }

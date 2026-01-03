@@ -66,7 +66,7 @@ canvas {
 
 #pause-button {
     position: absolute;
-    bottom: 60px;
+    bottom: 85px;
     left: 10px;
     padding: 10px 5px;
     font-size: 14px;
@@ -82,12 +82,12 @@ canvas {
 
 #restart-button {
     position: absolute;
-    bottom: 10px;
+    bottom: 15px;
     left: 10px;
     padding: 10px 2px;
     font-size: 14px;
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
-    color: #fff;
+    color: #ff0000;
     border: 2px solid #fff;
     border-radius: 0;
     cursor: pointer;
@@ -230,7 +230,7 @@ canvas {
 
 #audio-controls {
     position: absolute;
-    bottom: 10px;
+    bottom: 15px;
     left: 96px;
     padding: 5px 5px;
     font-size: 14px;
@@ -255,8 +255,8 @@ canvas {
 
 #stats-window {
     position: absolute;
-    top: 140px;
-    left: 235px;
+    top: 162px;
+    left: 213px;
     width: 102px;
     padding: 5px 5px;
     font-size: 14px;
@@ -279,6 +279,32 @@ canvas {
     line-height: 1.5;
 }
 
+#hud-window {
+    position: absolute;
+    top: 25px;
+    left: 212px;
+    width: 103px;
+    padding: 5px 5px;
+    font-size: 14px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 0;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#hud-window h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+}
+
+#hud-content {
+    line-height: 1.5;
+}
+
 #restart-confirm {
     position: absolute;
     top: 50%;
@@ -286,7 +312,7 @@ canvas {
     transform: translate(-50%, -50%);
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 0px;
     border: 2px solid #fff;
     box-shadow: 0 0 20px rgba(255,255,255,0.5);
     color: #fff;
@@ -309,7 +335,7 @@ canvas {
     color: #000;
     border: none;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 0px;
 }
 
 #lava-orientation-popup {
