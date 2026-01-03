@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     height: 100vh;
     background-color: #000;
@@ -12,6 +12,7 @@ body {
 
 #game-container {
     position: relative;
+    margin-left: 380px;
 }
 
 canvas {
@@ -23,13 +24,44 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 20px 40px;
+    width: 120px;
+    height: 120px;
     font-size: 24px;
     background-color: #fff;
     color: #000;
     border: none;
+    border-radius: 50%;
     cursor: pointer;
     z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#start-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid #fff;
+    animation: pulse 2s infinite;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
 }
 
 #pause-button {
@@ -73,6 +105,7 @@ canvas {
     color: #fff;
     font-size: 18px;
     z-index: 10;
+    display: none;
 }
 
 #game-over {
@@ -159,7 +192,7 @@ canvas {
     left: 10px;
     width: 200px;
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
-    padding: 10px;
+    padding: 0px;
     border-radius: 10px;
     border: 2px solid #fff;
     box-shadow: 0 0 20px rgba(255,255,255,0.5);
@@ -199,9 +232,9 @@ canvas {
 
 #audio-controls {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 10px 20px;
+    bottom: 5px;
+    left: 117px;
+    padding: 5px 5px;
     font-size: 14px;
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     color: #fff;
@@ -209,7 +242,7 @@ canvas {
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(255,255,255,0.5);
     z-index: 10;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 10px;
 }
@@ -225,9 +258,10 @@ canvas {
 
 #stats-window {
     position: absolute;
-    top: 150px;
-    right: 10px;
-    padding: 10px 20px;
+    top: 10px;
+    left: 235px;
+    width: 102px;
+    padding: 5px 5px;
     font-size: 14px;
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     color: #fff;
