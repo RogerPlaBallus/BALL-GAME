@@ -73,8 +73,7 @@ canvas {
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     color: #fff;
     border: 2px solid #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    border-radius: 0;
     cursor: pointer;
     text-align: center;
     z-index: 10;
@@ -90,8 +89,7 @@ canvas {
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     color: #fff;
     border: 2px solid #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    border-radius: 0;
     cursor: pointer;
     text-align: center;
     z-index: 10;
@@ -177,7 +175,7 @@ canvas {
 #game-paused {
     position: absolute;
     top: 40%;
-    left: 50%;
+    left: 57%;
     transform: translate(-50%, -50%);
     color: #ff0000;
     font-size: 36px;
@@ -193,9 +191,8 @@ canvas {
     width: 200px;
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     padding: 0px;
-    border-radius: 10px;
+    border-radius: 0;
     border: 2px solid #fff;
-    box-shadow: 0 0 20px rgba(255,255,255,0.5);
     color: #fff;
     font-size: 14px;
     text-align: center;
@@ -221,6 +218,7 @@ canvas {
     background-color: #fff;
     color: #000;
     border: none;
+    border-radius: 0;
     cursor: pointer;
 }
 
@@ -239,8 +237,7 @@ canvas {
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     color: #fff;
     border: 2px solid #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    border-radius: 0;
     z-index: 10;
     display: none;
     flex-direction: column;
@@ -266,8 +263,7 @@ canvas {
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     color: #fff;
     border: 2px solid #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    border-radius: 0;
     z-index: 10;
     display: none;
     flex-direction: column;
