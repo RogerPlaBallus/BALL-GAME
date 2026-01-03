@@ -637,6 +637,7 @@ class GameScene extends Phaser.Scene {
         }
         this.upgradeWindow.style.display = 'block';
         document.getElementById('stats-window').style.display = 'flex';
+        document.getElementById('audio-controls').style.display = 'flex';
         this.startLevel();
     }
 
