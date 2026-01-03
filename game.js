@@ -14,6 +14,8 @@ class GameScene extends Phaser.Scene {
         this.playerHealth = this.playerMaxHealth;
         this.playerMoney = 0;
         this.playerDamage = 1;
+        this.damageLevel = 0;
+        this.healthLevel = 0;
         this.playerCritChance = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
@@ -712,9 +714,12 @@ class GameScene extends Phaser.Scene {
 
     restartGame() {
         // Reset game variables
-        this.playerMaxHealth = 100;
+        this.playerMaxHealth = 5;
         this.playerHealth = this.playerMaxHealth;
         this.playerMoney = 0;
+        this.playerDamage = 1;
+        this.damageLevel = 0;
+        this.healthLevel = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
         this.lavaZoneLevel = 0;
@@ -887,14 +892,21 @@ class GameScene extends Phaser.Scene {
     }
 
     buyDamageUpgrade() {
-        if (this.playerMoney >= 10) {
-            this.playerMoney -= 10;
-            this.playerDamage += 1;
-            this.upgradeText.textContent = 'Damage increased by 1!';
+        const costs = [10, 15, 20, 30, 50];
+        if (this.damageLevel < 5 && this.playerMoney >= costs[this.damageLevel]) {
+            this.playerMoney -= costs[this.damageLevel];
+            this.damageLevel++;
+            this.playerDamage = 1 + this.damageLevel;
+            this.upgradeText.textContent = `Damage upgraded! Now level ${this.damageLevel}/5.`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
             if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
+            this.updateUpgradeButtons(); // Update button text immediately after purchase
+            // Clear the upgrade text after 5 seconds
+            this.time.delayedCall(5000, () => {
+                this.upgradeText.textContent = '';
+            });
         }
     }
 
@@ -921,10 +933,23 @@ class GameScene extends Phaser.Scene {
     }
 
     buyHealthUpgrade() {
-        if (this.playerMoney >= 15) {
-            this.playerMoney -= 15;
-            this.playerMaxHealth += 1;
-            this.upgradeText.textContent = 'Health increased by 1!';
+        const costs = [15, 20, 50];
+        const healthValues = [5, 10, 20, 50];
+        if (this.healthLevel < 3 && this.playerMoney >= costs[this.healthLevel]) {
+            this.playerMoney -= costs[this.healthLevel];
+            this.healthLevel++;
+            this.playerMaxHealth = healthValues[this.healthLevel];
+            this.playerHealth = this.playerMaxHealth; // Reset current health to new max
+            this.upgradeText.textContent = `Health upgraded! Now level ${this.healthLevel}/3.`;
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
+            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
+            this.updateUpgradeButtons(); // Update button text immediately after purchase
+            // Clear the upgrade text after 5 seconds
+            this.time.delayedCall(5000, () => {
+                this.upgradeText.textContent = '';
+            });
         }
     }
 
@@ -999,12 +1024,18 @@ class GameScene extends Phaser.Scene {
     }
 
     updateUpgradeButtons() {
-        this.damageUpgradeButton.disabled = this.playerMoney < 10;
+        const damageCosts = [10, 15, 20, 30, 50];
+        const damageCurrentCost = this.damageLevel < 5 ? damageCosts[this.damageLevel] : 0;
+        this.damageUpgradeButton.textContent = `DAMAGE - Cost: ${damageCurrentCost} (${this.damageLevel}/5)`;
+        this.damageUpgradeButton.disabled = this.damageLevel >= 5 || this.playerMoney < damageCurrentCost;
         const costs = [10, 15, 20, 25, 30];
         const currentCost = this.moreLasersLevel < 5 ? costs[this.moreLasersLevel] : 0;
         this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/5)`;
         this.moreLasersButton.disabled = this.moreLasersLevel >= 5 || this.playerMoney < currentCost;
-        this.healthUpgradeButton.disabled = this.playerMoney < 15;
+        const healthCosts = [15, 20, 50];
+        const healthCurrentCost = this.healthLevel < 3 ? healthCosts[this.healthLevel] : 0;
+        this.healthUpgradeButton.textContent = `HEALTH - Cost: ${healthCurrentCost} (${this.healthLevel}/3)`;
+        this.healthUpgradeButton.disabled = this.healthLevel >= 3 || this.playerMoney < healthCurrentCost;
         const lavaCosts = [10, 15, 20, 25];
         const lavaCurrentCost = this.lavaZoneLevel < 4 ? lavaCosts[this.lavaZoneLevel] : 0;
         this.lavaZoneButton.textContent = `LAVA ZONE - Cost: ${lavaCurrentCost} (${this.lavaZoneLevel}/4)`;
