@@ -202,9 +202,10 @@ class GameScene extends Phaser.Scene {
 
         // HUD elements
         this.hudLevel = document.getElementById('hud-level');
-        this.hudHealth = document.getElementById('hud-health');
-        this.hudMoney = document.getElementById('hud-money');
         this.hudEnemies = document.getElementById('hud-enemies');
+
+        // Stats elements
+        this.statsMoney = document.getElementById('stats-money');
 
         // Crit message text (inside canvas)
         this.critMessage = this.add.text(this.canvasWidth / 2, this.canvasHeight / 2 - 50, '', { fontSize: '24px', fill: '#ffff00', fontStyle: 'bold' });
@@ -346,8 +347,6 @@ class GameScene extends Phaser.Scene {
 
         // Update HUD
         if (this.hudLevel) this.hudLevel.textContent = this.level;
-        if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
-        if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
         if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
 
         // Update stats
@@ -356,6 +355,7 @@ class GameScene extends Phaser.Scene {
         if (this.statsDamage) this.statsDamage.textContent = this.playerDamage;
         if (this.statsLasers) this.statsLasers.textContent = this.moreLasersLevel + 1;
         if (this.statsCrit) this.statsCrit.textContent = this.playerCritChance + '%';
+        if (this.statsMoney) this.statsMoney.textContent = this.playerMoney;
 
         // Update upgrade buttons
         this.updateUpgradeButtons();
@@ -899,8 +899,6 @@ class GameScene extends Phaser.Scene {
             this.playerDamage = 1 + this.damageLevel;
             this.upgradeText.textContent = `Damage upgraded! Now level ${this.damageLevel}/5.`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
-            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
-            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons(); // Update button text immediately after purchase
             // Clear the upgrade text after 5 seconds
@@ -919,8 +917,6 @@ class GameScene extends Phaser.Scene {
             this.lasers.push(this.add.graphics());
             this.upgradeText.textContent = `More lasers upgraded! Now ${this.moreLasersLevel + 1} lasers.`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
-            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
-            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons(); // Update button text immediately after purchase
             // Update stats immediately
@@ -942,8 +938,6 @@ class GameScene extends Phaser.Scene {
             this.playerHealth = this.playerMaxHealth; // Reset current health to new max
             this.upgradeText.textContent = `Health upgraded! Now level ${this.healthLevel}/3.`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
-            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
-            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons(); // Update button text immediately after purchase
             // Clear the upgrade text after 5 seconds
@@ -982,8 +976,6 @@ class GameScene extends Phaser.Scene {
             this.poisonZonePreview.fillCircle(0, 0, 50);
             this.upgradeText.textContent = 'Click to place poison zone circle';
             if (this.hudLevel) this.hudLevel.textContent = this.level;
-            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
-            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons();
         }
@@ -1001,8 +993,6 @@ class GameScene extends Phaser.Scene {
             this.spikesPreview.fillCircle(0, 0, 15);
             this.upgradeText.textContent = 'Click to place spikes';
             if (this.hudLevel) this.hudLevel.textContent = this.level;
-            if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
-            if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons();
         }
