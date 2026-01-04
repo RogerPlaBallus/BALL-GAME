@@ -1,0 +1,3 @@
+- [ ] Modify spawnEnemy to initialize lastLavaDamage property on enemies
+- [ ] Update lava zone damage logic in update method to check timer before damaging
+- [ ] Test the changes to ensure damage is 1 per second

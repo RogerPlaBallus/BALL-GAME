@@ -32,7 +32,6 @@ class GameScene extends Phaser.Scene {
         this.placingSpikes = false;
         this.spikesPreview = null;
         this.laserSpeed = 500; // milliseconds between laser damages
-        this.baseSpeed = 50; // base enemy speed
         this.level = 1;
         this.maxLevel = 20;
         this.enemiesToSpawn = 10 + (this.level - 1) * 10;
@@ -242,7 +241,15 @@ class GameScene extends Phaser.Scene {
         // Move enemies towards player
         this.enemies.children.entries.forEach(enemy => {
             const angle = Phaser.Math.Angle.Between(enemy.x, enemy.y, this.canvasWidth / 2, this.canvasHeight / 2);
-            const speed = this.baseSpeed * (1 + (this.level - 1) * 0.02);
+            let baseSpeed;
+            if (this.level <= 10) {
+                baseSpeed = 50;
+            } else if (this.level <= 15) {
+                baseSpeed = 70;
+            } else {
+                baseSpeed = 90;
+            }
+            const speed = baseSpeed * (1 + (this.level - 1) * 0.02);
             enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
             // Update graphics position
             enemy.graphics.setPosition(enemy.x, enemy.y);
@@ -551,20 +558,27 @@ class GameScene extends Phaser.Scene {
                 const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
                 const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
                 if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
-                    enemy.damageTaken += 1;
-                    enemy.health -= 1;
-                    if (enemy.damageText) {
-                        enemy.damageText.setText("-" + enemy.damageTaken);
-                    } else {
-                        enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                    if (!enemy.lastLavaDamage) {
+                        enemy.lastLavaDamage = 0;
                     }
-                    if (enemy.health <= 0) {
-                        if (enemy.damageText) { enemy.damageText.destroy(); }
-                        enemy.graphics.destroy();
-                        enemy.destroy();
-                        this.enemiesAlive--;
-                        this.remainingEnemies--;
-                        this.playerMoney++;
+                    const currentTime = this.time.now;
+                    if (currentTime - enemy.lastLavaDamage >= 1000) { // 1 damage per second
+                        enemy.damageTaken += 1;
+                        enemy.health -= 1;
+                        enemy.lastLavaDamage = currentTime;
+                        if (enemy.damageText) {
+                            enemy.damageText.setText("-" + enemy.damageTaken);
+                        } else {
+                            enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                        }
+                        if (enemy.health <= 0) {
+                            if (enemy.damageText) { enemy.damageText.destroy(); }
+                            enemy.graphics.destroy();
+                            enemy.destroy();
+                            this.enemiesAlive--;
+                            this.remainingEnemies--;
+                            this.playerMoney++;
+                        }
                     }
                 }
             });
@@ -576,20 +590,27 @@ class GameScene extends Phaser.Scene {
                 const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
                 const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
                 if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
-                    enemy.damageTaken += 1;
-                    enemy.health -= 1;
-                    if (enemy.damageText) {
-                        enemy.damageText.setText("-" + enemy.damageTaken);
-                    } else {
-                        enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                    if (!enemy.lastPoisonDamage) {
+                        enemy.lastPoisonDamage = 0;
                     }
-                    if (enemy.health <= 0) {
-                        if (enemy.damageText) { enemy.damageText.destroy(); }
-                        enemy.graphics.destroy();
-                        enemy.destroy();
-                        this.enemiesAlive--;
-                        this.remainingEnemies--;
-                        this.playerMoney++;
+                    const currentTime = this.time.now;
+                    if (currentTime - enemy.lastPoisonDamage >= 1000) { // 1 damage per second
+                        enemy.damageTaken += 1;
+                        enemy.health -= 1;
+                        enemy.lastPoisonDamage = currentTime;
+                        if (enemy.damageText) {
+                            enemy.damageText.setText("-" + enemy.damageTaken);
+                        } else {
+                            enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                        }
+                        if (enemy.health <= 0) {
+                            if (enemy.damageText) { enemy.damageText.destroy(); }
+                            enemy.graphics.destroy();
+                            enemy.destroy();
+                            this.enemiesAlive--;
+                            this.remainingEnemies--;
+                            this.playerMoney++;
+                        }
                     }
                 }
             });
@@ -821,6 +842,8 @@ class GameScene extends Phaser.Scene {
         enemy.health = 5;
         enemy.damageTaken = 0;
         enemy.lastSpikeDamage = 0;
+        enemy.lastLavaDamage = 0;
+        enemy.lastPoisonDamage = 0;
         enemy.setCollideWorldBounds(false);
 
         // Add graphics for enemy
