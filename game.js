@@ -6,6 +6,7 @@ class GameScene extends Phaser.Scene {
     preload() {
         this.load.audio('soundtrack', 'sounds/soundtrack.mp3');
         this.load.audio('killsound', 'sounds/killsound.mp3');
+        this.load.audio('upgradesound', 'sounds/upgrade-sound.mp3');
     }
 
     create() {
@@ -53,6 +54,7 @@ class GameScene extends Phaser.Scene {
         this.targets = [];
         this.damageTexts = [];
         this.pointerWasDown = false;
+        this.lastUpgradeSoundTime = 0;
 
         // Create lava particle texture
         this.lavaParticleTexture = this.add.graphics();
@@ -218,6 +220,7 @@ class GameScene extends Phaser.Scene {
         // Audio setup
         this.soundtrack = this.sound.add('soundtrack', { loop: true, volume: 0.1 });
         this.killsound = this.sound.add('killsound', { volume: 1 });
+        this.upgradesound = this.sound.add('upgradesound', { volume: 1 });
 
         // Volume controls
         const musicVolumeSlider = document.getElementById('music-volume');
@@ -227,6 +230,7 @@ class GameScene extends Phaser.Scene {
         });
         effectsVolumeSlider.addEventListener('input', () => {
             this.killsound.setVolume(effectsVolumeSlider.value);
+            this.upgradesound.setVolume(effectsVolumeSlider.value);
         });
 
         // Play soundtrack on page load
@@ -916,6 +920,11 @@ class GameScene extends Phaser.Scene {
             this.playerMoney -= costs[this.damageLevel];
             this.damageLevel++;
             this.playerDamage = 1 + this.damageLevel;
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
             this.upgradeText.textContent = `Damage upgraded! Now level ${this.damageLevel}/5.`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
@@ -934,6 +943,11 @@ class GameScene extends Phaser.Scene {
             this.moreLasersLevel++;
             this.moreLasers = true;
             this.lasers.push(this.add.graphics());
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
             this.upgradeText.textContent = `More lasers upgraded! Now ${this.moreLasersLevel + 1} lasers.`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
@@ -955,6 +969,11 @@ class GameScene extends Phaser.Scene {
             this.healthLevel++;
             this.playerMaxHealth = healthValues[this.healthLevel];
             this.playerHealth = this.playerMaxHealth; // Reset current health to new max
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
             this.upgradeText.textContent = `Health upgraded! Now level ${this.healthLevel}/3.`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
@@ -971,6 +990,11 @@ class GameScene extends Phaser.Scene {
         if (this.lavaZoneLevel < 4 && this.playerMoney >= costs[this.lavaZoneLevel]) {
             this.playerMoney -= costs[this.lavaZoneLevel];
             this.lavaZoneLevel++;
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
             this.placingLavaZone = true;
             this.lavaZonePreview = this.add.graphics();
             this.lavaZonePreview.fillStyle(0xff4500, 0.5); // orange red
@@ -989,6 +1013,11 @@ class GameScene extends Phaser.Scene {
         if (this.poisonZoneLevel < 4 && this.playerMoney >= costs[this.poisonZoneLevel]) {
             this.playerMoney -= costs[this.poisonZoneLevel];
             this.poisonZoneLevel++;
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
             this.placingPoisonZone = true;
             this.poisonZonePreview = this.add.graphics();
             this.poisonZonePreview.fillStyle(0x00ff00, 0.5); // green
@@ -1006,6 +1035,11 @@ class GameScene extends Phaser.Scene {
         if (this.spikesLevel < 30 && this.playerMoney >= costs[levelIndex]) {
             this.playerMoney -= costs[levelIndex];
             this.spikesLevel++;
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
             this.placingSpikes = true;
             this.spikesPreview = this.add.graphics();
             this.spikesPreview.fillStyle(0x808080, 0.5); // grey
