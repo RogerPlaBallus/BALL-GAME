@@ -115,7 +115,7 @@ class GameScene extends Phaser.Scene {
         this.restartYesButton = document.getElementById('restart-yes');
         this.restartNoButton = document.getElementById('restart-no');
         this.restartYesButton.addEventListener('click', () => {
-            this.restartGame();
+            this.resetToMenu();
             this.hideRestartConfirm();
         });
         this.restartNoButton.addEventListener('click', () => {
@@ -1099,6 +1099,89 @@ class GameScene extends Phaser.Scene {
 
     hideRestartConfirm() {
         this.restartConfirm.style.display = 'none';
+    }
+
+    resetToMenu() {
+        // Reset game variables (same as restartGame)
+        this.playerMaxHealth = 5;
+        this.playerHealth = this.playerMaxHealth;
+        this.playerMoney = 0;
+        this.playerDamage = 1;
+        this.damageLevel = 0;
+        this.healthLevel = 0;
+        this.moreLasers = false;
+        this.moreLasersLevel = 0;
+        this.lavaZoneLevel = 0;
+        this.lavaZones = [];
+        this.placingLavaZone = false;
+        this.poisonZoneLevel = 0;
+        this.poisonZones = [];
+        this.placingPoisonZone = false;
+        this.spikesLevel = 0;
+        this.spikes = [];
+        this.placingSpikes = false;
+        this.level = 1;
+        this.enemiesToSpawn = 10;
+        this.enemiesSpawned = 0;
+        this.enemiesAlive = 0;
+        this.remainingEnemies = this.enemiesToSpawn;
+        this.enemiesPerBatch = 1;
+        this.spawnInterval = 2000;
+        this.gameOver = false;
+        this.laserActive = false;
+        this.damageTimer = 0;
+        this.playerDamageTimer = 0;
+
+        // Clear enemies
+        const enemiesToDestroy = [...this.enemies.children.entries];
+        enemiesToDestroy.forEach(enemy => {
+            if (enemy.damageText) enemy.damageText.destroy();
+            if (enemy.graphics) enemy.graphics.destroy();
+            enemy.destroy();
+        });
+        this.enemies.clear();
+
+        // Clear lava zones
+        this.lavaZones.forEach(zone => {
+            if (zone.emitter) zone.emitter.destroy();
+            if (zone.glow) zone.glow.destroy();
+            if (zone.innerWave) zone.innerWave.destroy();
+        });
+        this.lavaZones = [];
+        // Clear poison zones
+        this.poisonZones.forEach(zone => {
+            if (zone.emitter) zone.emitter.destroy();
+            if (zone.glow) zone.glow.destroy();
+            if (zone.innerWave) zone.innerWave.destroy();
+            zone.graphics.destroy();
+        });
+        this.poisonZones = [];
+
+        // Clear lasers
+        this.lasers.forEach(laser => laser.clear());
+        this.lasers = [this.add.graphics()];
+
+        // Hide game elements and show menu
+        this.gameStarted = false;
+        this.startButton.style.display = 'block';
+        this.pauseButton.style.display = 'none';
+        this.restartButton.style.display = 'none';
+        if (this.canvas) {
+            this.canvas.style.display = 'none';
+            this.canvas.style.border = 'none';
+        }
+        this.upgradeWindow.style.display = 'none';
+        document.getElementById('stats-window').style.display = 'none';
+        document.getElementById('hud-window').style.display = 'none';
+        document.getElementById('audio-controls').style.display = 'none';
+
+        // Hide overlays
+        this.gameOverText.style.display = 'none';
+        this.tryAgainButton.style.display = 'none';
+        this.levelCompleteText.style.display = 'none';
+        this.nextLevelButton.style.display = 'none';
+        this.gameWinText.style.display = 'none';
+        this.gamePausedText.style.display = 'none';
     }
 
 
