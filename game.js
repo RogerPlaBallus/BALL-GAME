@@ -541,7 +541,7 @@ class GameScene extends Phaser.Scene {
                     repeat: -1,
                     ease: 'Sine.easeInOut'
                 });
-                this.spikes.push({ x, y, radius: 15, graphics: spike, innerWave });
+                this.spikes.push({ x, y, radius: 15, graphics: spike, innerWave, damagedEnemies: new Set() });
                 this.spikesPreview.destroy();
                 this.spikesPreview = null;
                 this.placingSpikes = false;
@@ -622,14 +622,10 @@ class GameScene extends Phaser.Scene {
                 const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
                 const spikeCircle = new Phaser.Geom.Circle(spike.x, spike.y, spike.radius);
                 if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, spikeCircle)) {
-                    if (!enemy.lastSpikeDamage) {
-                        enemy.lastSpikeDamage = 0;
-                    }
-                    const currentTime = this.time.now;
-                    if (currentTime - enemy.lastSpikeDamage >= 1000) { // 1 damage per second
-                        enemy.damageTaken += 1;
-                        enemy.health -= 1;
-                        enemy.lastSpikeDamage = currentTime;
+                    if (!spike.damagedEnemies.has(enemy)) {
+                        spike.damagedEnemies.add(enemy);
+                        enemy.damageTaken += 5;
+                        enemy.health -= 5;
                         if (enemy.damageText) {
                             enemy.damageText.setText("-" + enemy.damageTaken);
                         } else {

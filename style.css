@@ -197,8 +197,9 @@ canvas {
     color: #fff;
     font-size: 14px;
     text-align: center;
-    z-index: 10;
+    z-index: 1000000;
     display: none;
+    overflow: visible;
 }
 
 #upgrade-window h2 {
@@ -229,6 +230,35 @@ canvas {
     cursor: not-allowed;
 }
 
+#upgrade-window button {
+    position: relative;
+}
+
+#upgrade-window button:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 0;
+    border: 2px solid #fff;
+    font-size: 20px;
+    white-space: nowrap;
+    z-index: 999999;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    margin-left: 10px;
+}
+
+#upgrade-window button:not(:hover)::after {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
 #audio-controls {
     position: absolute;
     bottom: 15px;
@@ -256,7 +286,7 @@ canvas {
 
 #stats-window {
     position: absolute;
-    top: 162px;
+    top: 119px;
     left: 213px;
     width: 102px;
     padding: 5px 5px;
