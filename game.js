@@ -10,7 +10,6 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        this.physics.world.drawDebug = false;
         // Game variables
         this.playerMaxHealth = 5;
         this.playerHealth = this.playerMaxHealth;
@@ -839,11 +838,9 @@ class GameScene extends Phaser.Scene {
         }
 
         const enemy = this.enemies.create(x, y, null);
-        enemy.body.debugShowFill = false;
-        enemy.body.debugShowStroke = false;
-                enemy.setCircle(15);
-        
-                enemy.health = 5;
+        enemy.setCircle(15);
+        enemy.body.debugShowBody = false;
+        enemy.health = 5;
         enemy.damageTaken = 0;
         enemy.lastSpikeDamage = 0;
         enemy.lastLavaDamage = 0;
@@ -858,9 +855,7 @@ class GameScene extends Phaser.Scene {
 
         this.enemiesSpawned++;
         this.enemiesAlive++;
-
-
-// NO afegeixis cap lineStyle ni strokeRect aquí
+        
     }
 
     drawLaser() {
