@@ -732,6 +732,9 @@ class GameScene extends Phaser.Scene {
         this.levelComplete = false;
         this.paused = false;
         this.spawnTimer = 0;
+        this.levelCompleteSoundPlayed = false;
+        this.playerWinSoundPlayed = false;
+        this.killSoundPlayed = false;
         // Clear any remaining enemies
         this.enemies.children.entries.forEach(enemy => {
             if (enemy.damageText) { enemy.damageText.destroy(); }
@@ -801,6 +804,9 @@ class GameScene extends Phaser.Scene {
         this.damageTimer = 0;
         this.playerDamageTimer = 0;
         this.playerLoseSoundPlayed = false;
+        this.levelCompleteSoundPlayed = false;
+        this.playerWinSoundPlayed = false;
+        this.killSoundPlayed = false;
 
         // Hide overlays
         this.gameOverText.style.display = 'none';
@@ -1174,6 +1180,10 @@ class GameScene extends Phaser.Scene {
         this.laserActive = false;
         this.damageTimer = 0;
         this.playerDamageTimer = 0;
+        this.playerLoseSoundPlayed = false;
+        this.levelCompleteSoundPlayed = false;
+        this.playerWinSoundPlayed = false;
+        this.killSoundPlayed = false;
 
         // Clear enemies
         const enemiesToDestroy = [...this.enemies.children.entries];
