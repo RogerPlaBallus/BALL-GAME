@@ -9,6 +9,8 @@ class GameScene extends Phaser.Scene {
         this.load.audio('upgradesound', 'sounds/upgrade-sound.mp3');
         this.load.audio('levelcomplete', 'sounds/level-completed.mp3');
         this.load.audio('takedamageplayer', 'sounds/take-damage-player.mp3');
+        this.load.audio('playerwin', 'sounds/player-win.mp3');
+        this.load.audio('playerlose', 'sounds/player-lose.mp3');
     }
 
     create() {
@@ -226,8 +228,12 @@ class GameScene extends Phaser.Scene {
         this.upgradesound = this.sound.add('upgradesound', { volume: 1 });
         this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 1 });
         this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 1 });
+        this.playerwinSound = this.sound.add('playerwin', { volume: 1 });
+        this.playerloseSound = this.sound.add('playerlose', { volume: 1 });
 
         this.levelCompleteSoundPlayed = false;
+        this.playerWinSoundPlayed = false;
+        this.playerLoseSoundPlayed = false;
 
         // Volume controls
         const musicVolumeSlider = document.getElementById('music-volume');
@@ -240,6 +246,8 @@ class GameScene extends Phaser.Scene {
             this.upgradesound.setVolume(effectsVolumeSlider.value);
             this.levelcompleteSound.setVolume(effectsVolumeSlider.value);
             this.takedamageplayerSound.setVolume(effectsVolumeSlider.value);
+            this.playerwinSound.setVolume(effectsVolumeSlider.value);
+            this.playerloseSound.setVolume(effectsVolumeSlider.value);
         });
 
         // Play soundtrack on page load
@@ -349,6 +357,7 @@ class GameScene extends Phaser.Scene {
             this.playerDamageTimer += delta;
             if (this.playerDamageTimer >= 1000) { // 1 damage per second
                 this.playerHealth -= 1;
+                this.takedamageplayerSound.play();
                 this.playerDamageTimer = 0;
             }
         } else {
@@ -392,6 +401,13 @@ class GameScene extends Phaser.Scene {
             if (!this.levelCompleteSoundPlayed) {
                 this.levelcompleteSound.play();
                 this.levelCompleteSoundPlayed = true;
+            }
+            // Play player win sound on level 20 after 1 second
+            if (this.level === 20 && !this.playerWinSoundPlayed) {
+                this.time.delayedCall(2000, () => {
+                    this.playerwinSound.play();
+                    this.playerWinSoundPlayed = true;
+                });
             }
             // Check for crit chance upgrade at levels 5, 10, 15
             if (this.level % 5 === 0) {
@@ -670,6 +686,11 @@ class GameScene extends Phaser.Scene {
             this.gameOverText.style.display = 'block';
             this.tryAgainButton.style.display = 'block';
             this.physics.pause();
+            // Play player lose sound once
+            if (!this.playerLoseSoundPlayed) {
+                this.playerloseSound.play();
+                this.playerLoseSoundPlayed = true;
+            }
             // Clear poison zones on game over
             this.poisonZones.forEach(zone => {
                 if (zone.emitter) zone.emitter.destroy();
@@ -779,6 +800,7 @@ class GameScene extends Phaser.Scene {
         this.laserActive = false;
         this.damageTimer = 0;
         this.playerDamageTimer = 0;
+        this.playerLoseSoundPlayed = false;
 
         // Hide overlays
         this.gameOverText.style.display = 'none';

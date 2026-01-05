@@ -109,8 +109,8 @@ canvas {
 
 #game-over {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: calc(1px + 300px);
+    left: calc(328px + 400px);
     transform: translate(-50%, -50%);
     color: #fff;
     font-size: 36px;
@@ -121,8 +121,8 @@ canvas {
 
 #try-again-button {
     position: absolute;
-    top: 60%;
-    left: 50%;
+    top: calc(1px + 300px + 100px);
+    left: calc(328px + 400px);
     transform: translate(-50%, -50%);
     padding: 20px 40px;
     font-size: 24px;
