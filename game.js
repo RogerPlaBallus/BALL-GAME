@@ -7,6 +7,7 @@ class GameScene extends Phaser.Scene {
         this.load.audio('soundtrack', 'sounds/soundtrack.mp3');
         this.load.audio('killsound', 'sounds/killsound.mp3');
         this.load.audio('upgradesound', 'sounds/upgrade-sound.mp3');
+        this.load.audio('levelcomplete', 'sounds/level-completed.mp3');
     }
 
     create() {
@@ -222,6 +223,9 @@ class GameScene extends Phaser.Scene {
         this.soundtrack = this.sound.add('soundtrack', { loop: true, volume: 0.1 });
         this.killsound = this.sound.add('killsound', { volume: 1 });
         this.upgradesound = this.sound.add('upgradesound', { volume: 1 });
+        this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 1 });
+
+        this.levelCompleteSoundPlayed = false;
 
         // Volume controls
         const musicVolumeSlider = document.getElementById('music-volume');
@@ -232,6 +236,7 @@ class GameScene extends Phaser.Scene {
         effectsVolumeSlider.addEventListener('input', () => {
             this.killsound.setVolume(effectsVolumeSlider.value);
             this.upgradesound.setVolume(effectsVolumeSlider.value);
+            this.levelcompleteSound.setVolume(effectsVolumeSlider.value);
         });
 
         // Play soundtrack on page load
@@ -380,6 +385,11 @@ class GameScene extends Phaser.Scene {
             this.physics.pause();
             // Clear lasers when level ends
             this.lasers.forEach(laser => laser.clear());
+            // Play level complete sound once
+            if (!this.levelCompleteSoundPlayed) {
+                this.levelcompleteSound.play();
+                this.levelCompleteSoundPlayed = true;
+            }
             // Check for crit chance upgrade at levels 5, 10, 15
             if (this.level % 5 === 0) {
                 this.playerCritChance += 10;
