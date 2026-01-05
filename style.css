@@ -302,12 +302,17 @@ canvas {
 }
 
 #stats-window h3 {
-    margin: 0 0 10px 0;
+    margin: 0 0 -10px 0;
     font-size: 18px;
 }
 
 #stats-content {
     line-height: 1.5;
+}
+
+#stats-money {
+    font-size: 20px;
+    color:#ffff00
 }
 
 #hud-window {
