@@ -60,6 +60,7 @@ class GameScene extends Phaser.Scene {
         this.pointerWasDown = false;
         this.lastUpgradeSoundTime = 0;
         this.killSoundPlayed = false;
+        this.lastKillSoundTime = 0;
 
         // Create lava particle texture
         this.lavaParticleTexture = this.add.graphics();
@@ -311,6 +312,7 @@ class GameScene extends Phaser.Scene {
             this.damageTimer += delta;
             if (this.damageTimer >= this.laserSpeed) {
                 this.killSoundPlayed = false;
+                let enemyNearDeath = false;
                 this.targets.forEach((target, index) => {
                     this.enemies.children.entries.forEach(enemy => {
                         if (this.checkLaserHit(target.x, target.y, enemy)) {
@@ -326,9 +328,8 @@ class GameScene extends Phaser.Scene {
                             } else {
                                 enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '20px', fill: '#ff0000' });
                             }
-                            if (enemy.health === 1 && !this.killSoundPlayed) {
-                                this.sound.add('killsound', { volume: this.killsound.volume }).play();
-                                this.killSoundPlayed = true;
+                            if (enemy.health === 1) {
+                                enemyNearDeath = true;
                             }
                             if (enemy.health <= 0) {
                                 if (enemy.damageText) { enemy.damageText.destroy(); }
@@ -341,6 +342,10 @@ class GameScene extends Phaser.Scene {
                         }
                     });
                 });
+                if (enemyNearDeath && !this.killSoundPlayed && !this.killsound.isPlaying) {
+                    this.killsound.play();
+                    this.killSoundPlayed = true;
+                }
                 this.damageTimer = 0;
             }
         }
