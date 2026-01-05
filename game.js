@@ -259,7 +259,7 @@ class GameScene extends Phaser.Scene {
             enemy.graphics.setPosition(enemy.x, enemy.y);
             // Update damage text position if it exists
             if (enemy.damageText) {
-                enemy.damageText.setPosition(enemy.x, enemy.y - 25);
+                enemy.damageText.setPosition(enemy.x + 20, enemy.y - 25);
             }
         });
 
@@ -306,7 +306,7 @@ class GameScene extends Phaser.Scene {
                             if (enemy.damageText) {
                                 enemy.damageText.setText("-" + enemy.damageTaken);
                             } else {
-                                enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                                enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '20px', fill: '#ff0000' });
                             }
                             if (enemy.health === 1) {
                                 this.sound.add('killsound', { volume: this.killsound.volume }).play();
@@ -329,7 +329,7 @@ class GameScene extends Phaser.Scene {
         // Check player damage
         let playerDamaged = false;
         this.enemies.children.entries.forEach(enemy => {
-            const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
+            const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
             if (Phaser.Geom.Intersects.CircleToCircle(this.playerCircle, enemyCircle)) {
                 playerDamaged = true;
             }
@@ -559,7 +559,7 @@ class GameScene extends Phaser.Scene {
         // Lava zone damage
         this.lavaZones.forEach(zone => {
             this.enemies.children.entries.forEach(enemy => {
-                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
+                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
                 const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
                 if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
                     if (!enemy.lastLavaDamage) {
@@ -573,7 +573,7 @@ class GameScene extends Phaser.Scene {
                         if (enemy.damageText) {
                             enemy.damageText.setText("-" + enemy.damageTaken);
                         } else {
-                            enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                            enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '24px', fill: '#ff0000' });
                         }
                         if (enemy.health <= 0) {
                             if (enemy.damageText) { enemy.damageText.destroy(); }
@@ -591,7 +591,7 @@ class GameScene extends Phaser.Scene {
         // Poison zone damage
         this.poisonZones.forEach(zone => {
             this.enemies.children.entries.forEach(enemy => {
-                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
+                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
                 const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
                 if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
                     if (!enemy.lastPoisonDamage) {
@@ -605,7 +605,7 @@ class GameScene extends Phaser.Scene {
                         if (enemy.damageText) {
                             enemy.damageText.setText("-" + enemy.damageTaken);
                         } else {
-                            enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                            enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '24px', fill: '#ff0000' });
                         }
                         if (enemy.health <= 0) {
                             if (enemy.damageText) { enemy.damageText.destroy(); }
@@ -633,7 +633,7 @@ class GameScene extends Phaser.Scene {
                         if (enemy.damageText) {
                             enemy.damageText.setText("-" + enemy.damageTaken);
                         } else {
-                            enemy.damageText = this.add.text(enemy.x, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '16px', fill: '#ff0000' });
+                            enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '24px', fill: '#ff0000' });
                         }
                         if (enemy.health <= 0) {
                             if (enemy.damageText) { enemy.damageText.destroy(); }
@@ -840,7 +840,7 @@ class GameScene extends Phaser.Scene {
         const enemy = this.enemies.create(x, y, null);
         enemy.body.debugShowFill = false;
         enemy.body.debugShowStroke = false;
-        enemy.setCircle(15);
+        enemy.setCircle(16);
 
         enemy.health = 5;
         enemy.damageTaken = 0;
@@ -852,7 +852,7 @@ class GameScene extends Phaser.Scene {
         // Add graphics for enemy
         enemy.graphics = this.add.graphics();
         enemy.graphics.fillStyle(0xff0000);
-        enemy.graphics.fillCircle(0, 0, 15);
+        enemy.graphics.fillCircle(0, 0, 24);
         enemy.graphics.setPosition(x, y);
 
         this.enemiesSpawned++;
@@ -901,7 +901,7 @@ class GameScene extends Phaser.Scene {
 
     checkLaserHit(mouseX, mouseY, enemy) {
         const line = new Phaser.Geom.Line(this.canvasWidth / 2, this.canvasHeight / 2, mouseX, mouseY);
-        const circle = new Phaser.Geom.Circle(enemy.x, enemy.y, 15);
+        const circle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
         return Phaser.Geom.Intersects.LineToCircle(line, circle);
     }
 
