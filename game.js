@@ -838,8 +838,10 @@ class GameScene extends Phaser.Scene {
         }
 
         const enemy = this.enemies.create(x, y, null);
+        enemy.body.debugShowFill = false;
+        enemy.body.debugShowStroke = false;
         enemy.setCircle(15);
-        enemy.body.debugShowBody = false;
+
         enemy.health = 5;
         enemy.damageTaken = 0;
         enemy.lastSpikeDamage = 0;
@@ -855,6 +857,7 @@ class GameScene extends Phaser.Scene {
 
         this.enemiesSpawned++;
         this.enemiesAlive++;
+
         
     }
 
