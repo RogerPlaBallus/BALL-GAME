@@ -8,6 +8,7 @@ class GameScene extends Phaser.Scene {
         this.load.audio('killsound', 'sounds/killsound.mp3');
         this.load.audio('upgradesound', 'sounds/upgrade-sound.mp3');
         this.load.audio('levelcomplete', 'sounds/level-completed.mp3');
+        this.load.audio('takedamageplayer', 'sounds/take-damage-player.mp3');
     }
 
     create() {
@@ -224,6 +225,7 @@ class GameScene extends Phaser.Scene {
         this.killsound = this.sound.add('killsound', { volume: 1 });
         this.upgradesound = this.sound.add('upgradesound', { volume: 1 });
         this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 1 });
+        this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 1 });
 
         this.levelCompleteSoundPlayed = false;
 
@@ -237,6 +239,7 @@ class GameScene extends Phaser.Scene {
             this.killsound.setVolume(effectsVolumeSlider.value);
             this.upgradesound.setVolume(effectsVolumeSlider.value);
             this.levelcompleteSound.setVolume(effectsVolumeSlider.value);
+            this.takedamageplayerSound.setVolume(effectsVolumeSlider.value);
         });
 
         // Play soundtrack on page load

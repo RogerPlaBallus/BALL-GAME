@@ -286,7 +286,7 @@ canvas {
 
 #stats-window {
     position: absolute;
-    top: 119px;
+    top: 84px;
     left: 213px;
     width: 102px;
     padding: 5px 5px;
@@ -321,7 +321,7 @@ canvas {
     left: 212px;
     width: 103px;
     padding: 5px 5px;
-    font-size: 14px;
+    font-size: 16px;
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
     color: #fff;
     border: 2px solid #fff;
