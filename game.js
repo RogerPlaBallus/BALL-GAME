@@ -217,7 +217,7 @@ class GameScene extends Phaser.Scene {
         this.statsMoney = document.getElementById('stats-money');
 
         // Crit message text (inside canvas)
-        this.critMessage = this.add.text(this.canvasWidth / 2, this.canvasHeight / 2 - 50, '', { fontSize: '24px', fill: '#ffff00', fontStyle: 'bold' });
+        this.critMessage = this.add.text(this.canvasWidth / 2, this.canvasHeight / 2 - 150, '', { fontSize: '48px', fill: '#ffff00', fontStyle: 'bold' });
         this.critMessage.setOrigin(0.5);
         this.critMessage.setVisible(false);
 
@@ -423,7 +423,7 @@ class GameScene extends Phaser.Scene {
                 this.playerCritChance += 10;
                 this.critMessage.setText('Crit Chance +10%');
                 this.critMessage.setVisible(true);
-                this.time.delayedCall(2000, () => {
+                this.time.delayedCall(5000, () => {
                     this.critMessage.setVisible(false);
                 });
             }
