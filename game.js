@@ -979,7 +979,7 @@ class GameScene extends Phaser.Scene {
     }
 
     buyDamageUpgrade() {
-        const costs = [10, 15, 20, 30, 50];
+        const costs = [10, 20, 50, 100, 500];
         if (this.damageLevel < 5 && this.playerMoney >= costs[this.damageLevel]) {
             this.playerMoney -= costs[this.damageLevel];
             this.damageLevel++;
@@ -1001,8 +1001,8 @@ class GameScene extends Phaser.Scene {
     }
 
     buyMoreLasers() {
-        const costs = [10, 15, 20, 25, 30];
-        if (this.moreLasersLevel < 5 && this.playerMoney >= costs[this.moreLasersLevel]) {
+        const costs = [10, 20, 100, 500];
+        if (this.moreLasersLevel < 4 && this.playerMoney >= costs[this.moreLasersLevel]) {
             this.playerMoney -= costs[this.moreLasersLevel];
             this.moreLasersLevel++;
             this.moreLasers = true;
@@ -1131,14 +1131,14 @@ class GameScene extends Phaser.Scene {
     }
 
     updateUpgradeButtons() {
-        const damageCosts = [10, 15, 20, 30, 50];
+        const damageCosts = [10, 20, 50, 100, 500];
         const damageCurrentCost = this.damageLevel < 5 ? damageCosts[this.damageLevel] : 0;
         this.damageUpgradeButton.textContent = `DAMAGE - Cost: ${damageCurrentCost} (${this.damageLevel}/5)`;
         this.damageUpgradeButton.disabled = this.damageLevel >= 5 || this.playerMoney < damageCurrentCost;
-        const costs = [10, 15, 20, 25, 30];
-        const currentCost = this.moreLasersLevel < 5 ? costs[this.moreLasersLevel] : 0;
-        this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/5)`;
-        this.moreLasersButton.disabled = this.moreLasersLevel >= 5 || this.playerMoney < currentCost;
+        const costs = [10, 20, 100, 500];
+        const currentCost = this.moreLasersLevel < 4 ? costs[this.moreLasersLevel] : 0;
+        this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/4)`;
+        this.moreLasersButton.disabled = this.moreLasersLevel >= 4 || this.playerMoney < currentCost;
         const healthCosts = [15, 20, 50];
         const healthCurrentCost = this.healthLevel < 3 ? healthCosts[this.healthLevel] : 0;
         this.healthUpgradeButton.textContent = `HEALTH - Cost: ${healthCurrentCost} (${this.healthLevel}/3)`;
