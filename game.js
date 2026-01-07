@@ -993,7 +993,7 @@ class GameScene extends Phaser.Scene {
     }
 
     buyDamageUpgrade() {
-        const costs = [10, 20, 50, 100, 500];
+        const costs = [10, 20, 50, 100, 300];
         if (this.damageLevel < 5 && this.playerMoney >= costs[this.damageLevel]) {
             this.playerMoney -= costs[this.damageLevel];
             this.damageLevel++;
@@ -1015,7 +1015,7 @@ class GameScene extends Phaser.Scene {
     }
 
     buyMoreLasers() {
-        const costs = [10, 20, 100, 500];
+        const costs = [10, 20, 100, 300];
         if (this.moreLasersLevel < 4 && this.playerMoney >= costs[this.moreLasersLevel]) {
             this.playerMoney -= costs[this.moreLasersLevel];
             this.moreLasersLevel++;
@@ -1145,11 +1145,11 @@ class GameScene extends Phaser.Scene {
     }
 
     updateUpgradeButtons() {
-        const damageCosts = [10, 20, 50, 100, 500];
+        const damageCosts = [10, 20, 50, 100, 300];
         const damageCurrentCost = this.damageLevel < 5 ? damageCosts[this.damageLevel] : 0;
         this.damageUpgradeButton.textContent = `DAMAGE - Cost: ${damageCurrentCost} (${this.damageLevel}/5)`;
         this.damageUpgradeButton.disabled = this.damageLevel >= 5 || this.playerMoney < damageCurrentCost;
-        const costs = [10, 20, 100, 500];
+        const costs = [10, 20, 100, 300];
         const currentCost = this.moreLasersLevel < 4 ? costs[this.moreLasersLevel] : 0;
         this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/4)`;
         this.moreLasersButton.disabled = this.moreLasersLevel >= 4 || this.playerMoney < currentCost;
