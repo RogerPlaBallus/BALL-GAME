@@ -61,6 +61,8 @@ class GameScene extends Phaser.Scene {
         this.lastUpgradeSoundTime = 0;
         this.killSoundPlayed = false;
         this.lastKillSoundTime = 0;
+        this.killsoundPool = [];
+        this.currentKillSoundIndex = 0;
 
         // Create lava particle texture
         this.lavaParticleTexture = this.add.graphics();
@@ -225,7 +227,10 @@ class GameScene extends Phaser.Scene {
 
         // Audio setup
         this.soundtrack = this.sound.add('soundtrack', { loop: true, volume: 0.1 });
-        this.killsound = this.sound.add('killsound', { volume: 1 });
+        // Create sound pool for killsound to handle multiple concurrent plays
+        for (let i = 0; i < 10; i++) {
+            this.killsoundPool.push(this.sound.add('killsound', { volume: 1 }));
+        }
         this.upgradesound = this.sound.add('upgradesound', { volume: 1 });
         this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 1 });
         this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 1 });
@@ -243,7 +248,7 @@ class GameScene extends Phaser.Scene {
             this.soundtrack.setVolume(musicVolumeSlider.value * 0.1);
         });
         effectsVolumeSlider.addEventListener('input', () => {
-            this.killsound.setVolume(effectsVolumeSlider.value);
+            this.killsoundPool.forEach(sound => sound.setVolume(effectsVolumeSlider.value));
             this.upgradesound.setVolume(effectsVolumeSlider.value);
             this.levelcompleteSound.setVolume(effectsVolumeSlider.value);
             this.takedamageplayerSound.setVolume(effectsVolumeSlider.value);
@@ -328,10 +333,8 @@ class GameScene extends Phaser.Scene {
                             } else {
                                 enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '20px', fill: '#ff0000' });
                             }
-                            if (enemy.health === 1) {
-                                enemyNearDeath = true;
-                            }
                             if (enemy.health <= 0) {
+                                enemyNearDeath = true;
                                 if (enemy.damageText) { enemy.damageText.destroy(); }
                                 enemy.graphics.destroy();
                                 enemy.destroy();
@@ -342,8 +345,9 @@ class GameScene extends Phaser.Scene {
                         }
                     });
                 });
-                if (enemyNearDeath && !this.killSoundPlayed && !this.killsound.isPlaying) {
-                    this.killsound.play();
+                if (enemyNearDeath && !this.killSoundPlayed) {
+                    this.killsoundPool[this.currentKillSoundIndex].play({ rate: 2 });
+                    this.currentKillSoundIndex = (this.currentKillSoundIndex + 1) % this.killsoundPool.length;
                     this.killSoundPlayed = true;
                 }
                 this.damageTimer = 0;
