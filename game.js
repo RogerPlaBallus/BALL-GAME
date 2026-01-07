@@ -105,6 +105,9 @@ class GameScene extends Phaser.Scene {
             this.startGame();
         });
 
+        // Start text
+        this.startText = document.getElementById('start-text');
+
         // Pause button
         this.pauseButton = document.getElementById('pause-button');
         this.pauseButton.addEventListener('click', () => {
@@ -725,6 +728,7 @@ class GameScene extends Phaser.Scene {
     startGame() {
         this.gameStarted = true;
         this.startButton.style.display = 'none';
+        this.startText.style.display = 'none';
         this.pauseButton.style.display = 'block';
         this.restartButton.style.display = 'block';
         // Show canvas, upgrade window, and stats window
