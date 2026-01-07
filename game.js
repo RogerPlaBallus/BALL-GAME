@@ -422,12 +422,15 @@ class GameScene extends Phaser.Scene {
             }
             // Check for crit chance upgrade at levels 5, 10, 15
             if (this.level % 5 === 0) {
-                this.playerCritChance += 10;
-                this.critMessage.setText('Crit Chance +10%');
-                this.critMessage.setVisible(true);
-                this.time.delayedCall(5000, () => {
-                    this.critMessage.setVisible(false);
-                });
+                const maxCritChance = Math.floor(this.level / 5) * 10;
+                if (this.playerCritChance < maxCritChance) {
+                    this.playerCritChance = maxCritChance;
+                    this.critMessage.setText('Crit Chance +10%');
+                    this.critMessage.setVisible(true);
+                    this.time.delayedCall(5000, () => {
+                        this.critMessage.setVisible(false);
+                    });
+                }
             }
             if (this.level === this.maxLevel) {
                 this.gameWinText.style.display = 'block';
@@ -824,6 +827,7 @@ class GameScene extends Phaser.Scene {
         this.playerDamage = 1;
         this.damageLevel = 0;
         this.healthLevel = 0;
+        this.playerCritChance = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
         this.lavaZoneLevel = 0;
@@ -1183,6 +1187,7 @@ class GameScene extends Phaser.Scene {
         this.playerDamage = 1;
         this.damageLevel = 0;
         this.healthLevel = 0;
+        this.playerCritChance = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
         this.lavaZoneLevel = 0;
