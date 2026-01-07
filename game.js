@@ -835,6 +835,7 @@ class GameScene extends Phaser.Scene {
             if (zone.emitter) zone.emitter.destroy();
             if (zone.glow) zone.glow.destroy();
             if (zone.innerWave) zone.innerWave.destroy();
+            zone.graphics.destroy();
         });
         this.lavaZones = [];
         // Clear poison zones
@@ -845,6 +846,13 @@ class GameScene extends Phaser.Scene {
             zone.graphics.destroy();
         });
         this.poisonZones = [];
+
+        // Clear spikes
+        this.spikes.forEach(spike => {
+            if (spike.innerWave) spike.innerWave.destroy();
+            spike.graphics.destroy();
+        });
+        this.spikes = [];
 
         // Clear lasers
         this.lasers.forEach(laser => laser.clear());
@@ -1208,6 +1216,7 @@ class GameScene extends Phaser.Scene {
             if (zone.emitter) zone.emitter.destroy();
             if (zone.glow) zone.glow.destroy();
             if (zone.innerWave) zone.innerWave.destroy();
+            zone.graphics.destroy();
         });
         this.lavaZones = [];
         // Clear poison zones
@@ -1218,6 +1227,13 @@ class GameScene extends Phaser.Scene {
             zone.graphics.destroy();
         });
         this.poisonZones = [];
+
+        // Clear spikes
+        this.spikes.forEach(spike => {
+            if (spike.innerWave) spike.innerWave.destroy();
+            spike.graphics.destroy();
+        });
+        this.spikes = [];
 
         // Clear lasers
         this.lasers.forEach(laser => laser.clear());
