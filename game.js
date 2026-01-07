@@ -231,7 +231,7 @@ class GameScene extends Phaser.Scene {
         for (let i = 0; i < 10; i++) {
             this.killsoundPool.push(this.sound.add('killsound', { volume: 1 }));
         }
-        this.upgradesound = this.sound.add('upgradesound', { volume: 1 });
+        this.upgradesound = this.sound.add('upgradesound', { volume: 0.5 });
         this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 1 });
         this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 1 });
         this.playerwinSound = this.sound.add('playerwin', { volume: 1 });
