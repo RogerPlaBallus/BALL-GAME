@@ -236,7 +236,7 @@ class GameScene extends Phaser.Scene {
         for (let i = 0; i < 10; i++) {
             this.killsoundPool.push(this.sound.add('killsound', { volume: 0.1 }));
         }
-        this.upgradesound = this.sound.add('upgradesound', { volume: 0.1 });
+        this.upgradesound = this.sound.add('upgradesound', { volume: 0.05 });
         this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 0.1 });
         this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 0.1 });
         this.playerwinSound = this.sound.add('playerwin', { volume: 1 });
@@ -277,9 +277,9 @@ class GameScene extends Phaser.Scene {
             if (this.level <= 10) {
                 baseSpeed = 50;
             } else if (this.level <= 15) {
-                baseSpeed = 70;
+                baseSpeed = 60;
             } else {
-                baseSpeed = 90;
+                baseSpeed = 70;
             }
             const speed = baseSpeed * (1 + (this.level - 1) * 0.02);
             enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
@@ -424,7 +424,7 @@ class GameScene extends Phaser.Scene {
                 });
             }
             // Check for crit chance upgrade at levels 5, 10, 15
-            if (this.level % 5 === 0) {
+            if (this.level % 5 === 0 && this.level <= 15) {
                 const maxCritChance = Math.floor(this.level / 5) * 10;
                 if (this.playerCritChance < maxCritChance) {
                     this.playerCritChance = maxCritChance;
@@ -1112,7 +1112,7 @@ class GameScene extends Phaser.Scene {
     }
 
     buySpikes() {
-        const costs = [10,10,10,10,10,10,10,10,10,10, 50,50,50,50,50,50,50,50,50,50, 100,100,100,100,100,100,100,100,100,100]; // first 10: 10, next 10: 50, next 10: 100
+        const costs = [10,10,10,10,10,10,10,10,10,10, 50,50,50,50,50,50,50,50,50,50, 50,50,50,50,50,50,50,50,50,50]; // first 10: 10, next 20: 50
         const levelIndex = this.spikesLevel;
         if (this.spikesLevel < 30 && this.playerMoney >= costs[levelIndex]) {
             this.playerMoney -= costs[levelIndex];
@@ -1169,7 +1169,7 @@ class GameScene extends Phaser.Scene {
         const poisonCurrentCost = this.poisonZoneLevel < 4 ? poisonCosts[this.poisonZoneLevel] : 0;
         this.poisonZoneButton.textContent = `POISON ZONE - Cost: ${poisonCurrentCost} (${this.poisonZoneLevel}/4)`;
         this.poisonZoneButton.disabled = this.poisonZoneLevel >= 4 || this.playerMoney < poisonCurrentCost;
-        const spikesCosts = [10,10,10,10,10,10,10,10,10,10, 50,50,50,50,50,50,50,50,50,50, 100,100,100,100,100,100,100,100,100,100]; // first 10: 10, next 10: 50, next 10: 100
+        const spikesCosts = [10,10,10,10,10,10,10,10,10,10, 50,50,50,50,50,50,50,50,50,50, 50,50,50,50,50,50,50,50,50,50]; // first 10: 10, next 20: 50
         const spikesCurrentCost = this.spikesLevel < 30 ? spikesCosts[this.spikesLevel] : 0;
         this.spikesButton.textContent = `SPIKES - Cost: ${spikesCurrentCost} (${this.spikesLevel}/30)`;
         this.spikesButton.disabled = this.spikesLevel >= 30 || this.playerMoney < spikesCurrentCost;
