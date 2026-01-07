@@ -138,6 +138,7 @@ class GameScene extends Phaser.Scene {
         this.tryAgainButton = document.getElementById('try-again-button');
         this.tryAgainButton.addEventListener('click', () => {
             this.restartGame();
+            this.resetToMenu();
         });
 
         // Level Complete overlay
@@ -232,7 +233,7 @@ class GameScene extends Phaser.Scene {
         for (let i = 0; i < 10; i++) {
             this.killsoundPool.push(this.sound.add('killsound', { volume: 1 }));
         }
-        this.upgradesound = this.sound.add('upgradesound', { volume: 0.5 });
+        this.upgradesound = this.sound.add('upgradesound', { volume: 0.3 });
         this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 1 });
         this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 1 });
         this.playerwinSound = this.sound.add('playerwin', { volume: 1 });
@@ -901,7 +902,16 @@ class GameScene extends Phaser.Scene {
         enemy.body.debugShowStroke = false;
         enemy.setCircle(16);
 
-        enemy.health = 5;
+        // Set enemy health based on level
+        if (this.level <= 4) {
+            enemy.health = 5;
+        } else if (this.level <= 9) {
+            enemy.health = 7;
+        } else if (this.level <= 14) {
+            enemy.health = 10;
+        } else {
+            enemy.health = 15;
+        }
         enemy.damageTaken = 0;
         enemy.lastSpikeDamage = 0;
         enemy.lastLavaDamage = 0;
