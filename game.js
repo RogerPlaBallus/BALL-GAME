@@ -123,6 +123,7 @@ class GameScene extends Phaser.Scene {
         this.restartYesButton = document.getElementById('restart-yes');
         this.restartNoButton = document.getElementById('restart-no');
         this.restartYesButton.addEventListener('click', () => {
+            this.restartGame();
             this.resetToMenu();
             this.hideRestartConfirm();
         });
@@ -783,6 +784,38 @@ class GameScene extends Phaser.Scene {
     }
 
     restartGame() {
+        // Clear enemies
+        const enemiesToDestroy = [...this.enemies.children.entries];
+        enemiesToDestroy.forEach(enemy => {
+            if (enemy.damageText) enemy.damageText.destroy();
+            if (enemy.graphics) enemy.graphics.destroy();
+            enemy.destroy();
+        });
+        this.enemies.clear();
+
+        // Clear lava zones
+        this.lavaZones.forEach(zone => {
+            if (zone.emitter) zone.emitter.destroy();
+            if (zone.glow) zone.glow.destroy();
+            if (zone.innerWave) zone.innerWave.destroy();
+            zone.graphics.destroy();
+        });
+        // Clear poison zones
+        this.poisonZones.forEach(zone => {
+            if (zone.emitter) zone.emitter.destroy();
+            if (zone.glow) zone.glow.destroy();
+            if (zone.innerWave) zone.innerWave.destroy();
+            zone.graphics.destroy();
+        });
+        // Clear spikes
+        this.spikes.forEach(spike => {
+            if (spike.innerWave) spike.innerWave.destroy();
+            spike.graphics.destroy();
+        });
+
+        // Clear lasers
+        this.lasers.forEach(laser => laser.clear());
+
         // Reset game variables
         this.playerMaxHealth = 5;
         this.playerHealth = this.playerMaxHealth;
@@ -821,41 +854,6 @@ class GameScene extends Phaser.Scene {
         this.gameOverText.style.display = 'none';
         this.tryAgainButton.style.display = 'none';
 
-        // Clear enemies
-        const enemiesToDestroy = [...this.enemies.children.entries];
-        enemiesToDestroy.forEach(enemy => {
-            if (enemy.damageText) enemy.damageText.destroy();
-            if (enemy.graphics) enemy.graphics.destroy();
-            enemy.destroy();
-        });
-        this.enemies.clear();
-
-        // Clear lava zones
-        this.lavaZones.forEach(zone => {
-            if (zone.emitter) zone.emitter.destroy();
-            if (zone.glow) zone.glow.destroy();
-            if (zone.innerWave) zone.innerWave.destroy();
-            zone.graphics.destroy();
-        });
-        this.lavaZones = [];
-        // Clear poison zones
-        this.poisonZones.forEach(zone => {
-            if (zone.emitter) zone.emitter.destroy();
-            if (zone.glow) zone.glow.destroy();
-            if (zone.innerWave) zone.innerWave.destroy();
-            zone.graphics.destroy();
-        });
-        this.poisonZones = [];
-
-        // Clear spikes
-        this.spikes.forEach(spike => {
-            if (spike.innerWave) spike.innerWave.destroy();
-            spike.graphics.destroy();
-        });
-        this.spikes = [];
-
-        // Clear lasers
-        this.lasers.forEach(laser => laser.clear());
         this.lasers = [this.add.graphics()];
 
         // Update HUD
