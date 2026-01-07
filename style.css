@@ -5,7 +5,7 @@ body {
     justify-content: flex-start;
     align-items: center;
     height: 100vh;
-    background-color: #000;
+    background-color: #000000;
     font-family: Arial, sans-serif;
     overflow: hidden;
 }
@@ -83,7 +83,7 @@ canvas {
     left: 10px;
     padding: 10px 5px;
     font-size: 14px;
-    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    background-color: rgba(0,0,0,0.9);
     color: #fff;
     border: 2px solid #fff;
     border-radius: 0;
@@ -99,7 +99,7 @@ canvas {
     left: 10px;
     padding: 10px 2px;
     font-size: 14px;
-    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    background-color: rgba(0,0,0,0.9);
     color: #ff0000;
     border: 2px solid #fff;
     border-radius: 0;
@@ -277,7 +277,7 @@ canvas {
     left: 96px;
     padding: 5px 5px;
     font-size: 14px;
-    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    background-color: rgba(0,0,0,0.9);
     color: #fff;
     border: 2px solid #fff;
     border-radius: 0;
@@ -303,7 +303,7 @@ canvas {
     width: 102px;
     padding: 5px 5px;
     font-size: 14px;
-    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    background: linear-gradient(135deg, rgba(0,0,0,0.9));
     color: #fff;
     border: 2px solid #fff;
     border-radius: 0;
@@ -334,7 +334,7 @@ canvas {
     width: 103px;
     padding: 5px 5px;
     font-size: 16px;
-    background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
+    background-color: rgba(0,0,0,0.9);
     color: #fff;
     border: 2px solid #fff;
     border-radius: 0;

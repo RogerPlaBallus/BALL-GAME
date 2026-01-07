@@ -1259,6 +1259,7 @@ class GameScene extends Phaser.Scene {
         // Hide game elements and show menu
         this.gameStarted = false;
         this.startButton.style.display = 'block';
+        this.startText.style.display = 'block';
         this.pauseButton.style.display = 'none';
         this.restartButton.style.display = 'none';
         if (this.canvas) {
