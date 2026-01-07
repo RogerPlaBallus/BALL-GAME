@@ -231,14 +231,14 @@ class GameScene extends Phaser.Scene {
         this.soundtrack = this.sound.add('soundtrack', { loop: true, volume: 0.1 });
         // Create sound pool for killsound to handle multiple concurrent plays
         for (let i = 0; i < 10; i++) {
-            this.killsoundPool.push(this.sound.add('killsound', { volume: 1 }));
+            this.killsoundPool.push(this.sound.add('killsound', { volume: 0.1 }));
         }
-        this.upgradesound = this.sound.add('upgradesound', { volume: 0.3 });
-        this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 1 });
-        this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 1 });
+        this.upgradesound = this.sound.add('upgradesound', { volume: 0.1 });
+        this.levelcompleteSound = this.sound.add('levelcomplete', { volume: 0.1 });
+        this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 0.1 });
         this.playerwinSound = this.sound.add('playerwin', { volume: 1 });
         this.playerloseSound = this.sound.add('playerlose', { volume: 1 });
-
+        
         this.levelCompleteSoundPlayed = false;
         this.playerWinSoundPlayed = false;
         this.playerLoseSoundPlayed = false;
@@ -348,7 +348,7 @@ class GameScene extends Phaser.Scene {
                     });
                 });
                 if (enemyNearDeath && !this.killSoundPlayed) {
-                    this.killsoundPool[this.currentKillSoundIndex].play({ rate: 2 });
+                    this.killsoundPool[this.currentKillSoundIndex].play({ rate: 1.0 });
                     this.currentKillSoundIndex = (this.currentKillSoundIndex + 1) % this.killsoundPool.length;
                     this.killSoundPlayed = true;
                 }
