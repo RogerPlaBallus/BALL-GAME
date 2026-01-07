@@ -1,5 +1,5 @@
 ![projectImage](image.png)
-# White Sphere Survival
+# BALL GAME
 
 A simple browser-based survival game built with Phaser.js.
 
