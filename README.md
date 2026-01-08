@@ -2,6 +2,8 @@
 # BALL GAME
 
 A simple browser-based survival game built with Phaser.js.
+Go here to play:
+https://rogerplaballus.github.io/BALL-GAME/
 
 ## Description
 
