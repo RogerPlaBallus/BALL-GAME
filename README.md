@@ -12,7 +12,7 @@ Control a white sphere that automatically shoots lasers at approaching red enemi
 1. Click START to begin.
 2. The white sphere in the center shoots lasers at enemies automatically.
 3. Enemies move towards you - avoid contact or you'll DIE.
-4. Use money earned from kills to buy upgrades in the upgrade window.
+4. Use money earned from kills to buy upgrades.
 5. Survive all enemies in each level to progress.
 6. Reach level 20 and win!
 
