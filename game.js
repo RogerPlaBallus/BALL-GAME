@@ -1045,7 +1045,7 @@ class GameScene extends Phaser.Scene {
 
     buyHealthUpgrade() {
         const costs = [15, 20, 50];
-        const healthValues = [5, 10, 20, 50];
+        const healthValues = [5, 10, 15, 20];
         if (this.healthLevel < 3 && this.playerMoney >= costs[this.healthLevel]) {
             this.playerMoney -= costs[this.healthLevel];
             this.healthLevel++;
