@@ -1,4 +1,5 @@
-![project-image](image-1.png)
+<img width="1615" height="892" alt="image" src="https://github.com/user-attachments/assets/23d58fc5-ad6a-4859-9f97-ebb794fd50c3" />
+
 # BALL GAME
 
 A simple browser-based survival game built with Phaser.js. <br>
