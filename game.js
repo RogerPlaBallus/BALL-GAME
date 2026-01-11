@@ -36,6 +36,14 @@ class GameScene extends Phaser.Scene {
         this.spikes = [];
         this.placingSpikes = false;
         this.spikesPreview = null;
+        this.pulseLevel = 0;
+        this.pulseDamage = 1;
+        this.pulseInterval = 4000; // milliseconds between pulses
+        this.pulseTimer = 0;
+        this.pulseActive = false;
+        this.pulseRadius = 0;
+        this.pulseMaxRadius = 500; // max radius to cover map corners
+        this.pulseGraphics = null;
         this.laserSpeed = 500; // milliseconds between laser damages
         this.level = 1;
         this.maxLevel = 20;
@@ -205,6 +213,12 @@ class GameScene extends Phaser.Scene {
         this.spikesButton = document.getElementById('spikes-button');
         this.spikesButton.addEventListener('click', () => {
             this.buySpikes();
+        });
+
+        // Pulse upgrade button
+        this.pulseButton = document.getElementById('pulse-button');
+        this.pulseButton.addEventListener('click', () => {
+            this.buyPulse();
         });
 
         // Stats elements
@@ -708,6 +722,59 @@ class GameScene extends Phaser.Scene {
             });
         });
 
+        // Pulse damage
+        if (this.pulseLevel > 0) {
+            this.pulseTimer += delta;
+            if (this.pulseTimer >= this.pulseInterval) {
+                this.pulseActive = true;
+                this.pulseRadius = 0;
+                this.pulseGraphics = this.add.graphics();
+                this.pulseGraphics.fillStyle(0xffffff, 0.3); // transparent white
+                this.pulseGraphics.fillCircle(this.canvasWidth / 2, this.canvasHeight / 2, 0);
+                this.pulseTimer = 0;
+            }
+            if (this.pulseActive) {
+                this.pulseRadius += delta * 0.5; // expand speed
+                if (this.pulseGraphics) {
+                    this.pulseGraphics.clear();
+                    this.pulseGraphics.fillStyle(0xffffff, 0.3);
+                    this.pulseGraphics.fillCircle(this.canvasWidth / 2, this.canvasHeight / 2, this.pulseRadius);
+                }
+                // Damage enemies in radius
+                this.enemies.children.entries.forEach(enemy => {
+                    const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
+                    const pulseCircle = new Phaser.Geom.Circle(this.canvasWidth / 2, this.canvasHeight / 2, this.pulseRadius);
+                    if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, pulseCircle)) {
+                        if (!enemy.lastPulseDamage || enemy.lastPulseDamage !== this.pulseLevel) {
+                            enemy.lastPulseDamage = this.pulseLevel;
+                            enemy.damageTaken += this.pulseDamage;
+                            enemy.health -= this.pulseDamage;
+                            if (enemy.damageText) {
+                                enemy.damageText.setText("-" + enemy.damageTaken);
+                            } else {
+                                enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '24px', fill: '#ff0000' });
+                            }
+                            if (enemy.health <= 0) {
+                                if (enemy.damageText) { enemy.damageText.destroy(); }
+                                enemy.graphics.destroy();
+                                enemy.destroy();
+                                this.enemiesAlive--;
+                                this.remainingEnemies--;
+                                this.playerMoney++;
+                            }
+                        }
+                    }
+                });
+                if (this.pulseRadius >= this.pulseMaxRadius) {
+                    this.pulseActive = false;
+                    if (this.pulseGraphics) {
+                        this.pulseGraphics.destroy();
+                        this.pulseGraphics = null;
+                    }
+                }
+            }
+        }
+
         // Check game over
         if (this.playerHealth <= 0) {
             this.gameOver = true;
@@ -854,6 +921,13 @@ class GameScene extends Phaser.Scene {
         this.spikesLevel = 0;
         this.spikes = [];
         this.placingSpikes = false;
+        this.pulseLevel = 0;
+        this.pulseDamage = 1;
+        this.pulseInterval = 4000;
+        this.pulseTimer = 0;
+        this.pulseActive = false;
+        this.pulseRadius = 0;
+        this.pulseGraphics = null;
         this.level = 1;
         this.enemiesToSpawn = 10;
         this.enemiesSpawned = 0;
@@ -1144,6 +1218,29 @@ class GameScene extends Phaser.Scene {
         }
     }
 
+    buyPulse() {
+        const costs = [100, 200, 300];
+        if (this.pulseLevel < 3 && this.playerMoney >= costs[this.pulseLevel]) {
+            this.playerMoney -= costs[this.pulseLevel];
+            this.pulseLevel++;
+            this.pulseDamage = this.pulseLevel;
+            this.pulseInterval = 5000 - this.pulseLevel * 1000; // 4000, 3000, 2000
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
+            this.upgradeText.textContent = `Pulse upgraded! Now level ${this.pulseLevel}/3.`;
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
+            this.updateUpgradeButtons(); // Update button text immediately after purchase
+            // Clear the upgrade text after 5 seconds
+            this.time.delayedCall(5000, () => {
+                this.upgradeText.textContent = '';
+            });
+        }
+    }
+
 
 
     togglePause() {
@@ -1184,6 +1281,10 @@ class GameScene extends Phaser.Scene {
         const spikesCurrentCost = this.spikesLevel < 30 ? spikesCosts[this.spikesLevel] : 0;
         this.spikesButton.textContent = `SPIKES - Cost: ${spikesCurrentCost} (${this.spikesLevel}/30)`;
         this.spikesButton.disabled = this.spikesLevel >= 30 || this.playerMoney < spikesCurrentCost;
+        const pulseCosts = [100, 200, 300];
+        const pulseCurrentCost = this.pulseLevel < 3 ? pulseCosts[this.pulseLevel] : 0;
+        this.pulseButton.textContent = `PULSE - Cost: ${pulseCurrentCost} (${this.pulseLevel}/3)`;
+        this.pulseButton.disabled = this.pulseLevel >= 3 || this.playerMoney < pulseCurrentCost;
     }
 
     showRestartConfirm() {
@@ -1214,6 +1315,13 @@ class GameScene extends Phaser.Scene {
         this.spikesLevel = 0;
         this.spikes = [];
         this.placingSpikes = false;
+        this.pulseLevel = 0;
+        this.pulseDamage = 1;
+        this.pulseInterval = 4000;
+        this.pulseTimer = 0;
+        this.pulseActive = false;
+        this.pulseRadius = 0;
+        this.pulseGraphics = null;
         this.level = 1;
         this.enemiesToSpawn = 10;
         this.enemiesSpawned = 0;
