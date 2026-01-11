@@ -241,6 +241,17 @@ class GameScene extends Phaser.Scene {
         this.takedamageplayerSound = this.sound.add('takedamageplayer', { volume: 0.1 });
         this.playerwinSound = this.sound.add('playerwin', { volume: 1 });
         this.playerloseSound = this.sound.add('playerlose', { volume: 1 });
+
+        // Store base volumes for volume controls
+        this.baseVolumes = {
+            soundtrack: 0.1,
+            killsound: 0.1,
+            upgradesound: 0.05,
+            levelcomplete: 0.1,
+            takedamageplayer: 0.1,
+            playerwin: 1,
+            playerlose: 1
+        };
         
         this.levelCompleteSoundPlayed = false;
         this.playerWinSoundPlayed = false;
@@ -253,12 +264,12 @@ class GameScene extends Phaser.Scene {
             this.soundtrack.setVolume(musicVolumeSlider.value * 0.1);
         });
         effectsVolumeSlider.addEventListener('input', () => {
-            this.killsoundPool.forEach(sound => sound.setVolume(effectsVolumeSlider.value));
-            this.upgradesound.setVolume(effectsVolumeSlider.value);
-            this.levelcompleteSound.setVolume(effectsVolumeSlider.value);
-            this.takedamageplayerSound.setVolume(effectsVolumeSlider.value);
-            this.playerwinSound.setVolume(effectsVolumeSlider.value);
-            this.playerloseSound.setVolume(effectsVolumeSlider.value);
+            this.killsoundPool.forEach(sound => sound.setVolume(this.baseVolumes.killsound * effectsVolumeSlider.value));
+            this.upgradesound.setVolume(this.baseVolumes.upgradesound * effectsVolumeSlider.value);
+            this.levelcompleteSound.setVolume(this.baseVolumes.levelcomplete * effectsVolumeSlider.value);
+            this.takedamageplayerSound.setVolume(this.baseVolumes.takedamageplayer * effectsVolumeSlider.value);
+            this.playerwinSound.setVolume(this.baseVolumes.playerwin * effectsVolumeSlider.value);
+            this.playerloseSound.setVolume(this.baseVolumes.playerlose * effectsVolumeSlider.value);
         });
 
         // Play soundtrack on page load
