@@ -1,4 +1,4 @@
-![projectImage](image.png)
+![project-image](image-1.png)
 # BALL GAME
 
 A simple browser-based survival game built with Phaser.js. <br>
@@ -21,7 +21,7 @@ Control a white sphere that automatically shoots lasers at approaching red enemi
 ## Features
 
 - Auto-targeting laser system
-- Multiple upgrade types: damage, lasers, health, lava and poison zones, spikes
+- Multiple upgrade types: damage, lasers, health, lava and poison zones, spikes, pulse.
 - 20 challenging levels
 - Sound effects and background music
 - Pause and restart options
