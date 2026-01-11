@@ -1,7 +1,9 @@
 ![projectImage](image.png)
 # BALL GAME
 
-A simple browser-based survival game built with Phaser.js.
+A simple browser-based survival game built with Phaser.js. <br>
+Click here to play:
+https://rogerplaballus.github.io/BALL-GAME/
 
 ## Description
 
