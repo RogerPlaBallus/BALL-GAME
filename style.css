@@ -199,7 +199,7 @@ canvas {
 
 #upgrade-window {
     position: absolute;
-    top: 25px;
+    top: 9px;
     left: 10px;
     width: 200px;
     background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(50,50,50,0.9));
@@ -298,7 +298,7 @@ canvas {
 
 #stats-window {
     position: absolute;
-    top: 84px;
+    top: 68px;
     left: 213px;
     width: 102px;
     padding: 5px 5px;
@@ -329,7 +329,7 @@ canvas {
 
 #hud-window {
     position: absolute;
-    top: 25px;
+    top: 9px;
     left: 212px;
     width: 103px;
     padding: 5px 5px;
