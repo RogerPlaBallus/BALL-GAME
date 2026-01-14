@@ -163,11 +163,11 @@ canvas {
 
 #level-complete {
     position: absolute;
-    top: calc(1px + 280px);
+    top: calc(1px + 260px);
     left: calc(328px + 400px);
     transform: translate(-50%, -50%);
     color: #fff;
-    font-size: 36px;
+    font-size: 40px;
     text-align: center;
     z-index: 10;
     display: none;
@@ -227,7 +227,7 @@ canvas {
 
 #upgrade-window button {
     margin: 5px;
-    padding: 7px 10px;
+    padding: 5px 10px;
     font-size: 16px;
     background-color: #fff;
     color: #000;
