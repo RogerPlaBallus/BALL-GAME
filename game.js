@@ -72,19 +72,9 @@ class GameScene extends Phaser.Scene {
         this.killsoundPool = [];
         this.currentKillSoundIndex = 0;
 
-        // Create lava particle texture
-        this.lavaParticleTexture = this.add.graphics();
-        this.lavaParticleTexture.fillStyle(0xff4500);
-        this.lavaParticleTexture.fillCircle(0, 0, 2);
-        this.lavaParticleTexture.generateTexture('lavaParticle');
-        this.lavaParticleTexture.destroy();
-
-        // Create poison particle texture
-        this.poisonParticleTexture = this.add.graphics();
-        this.poisonParticleTexture.fillStyle(0x00ff00);
-        this.poisonParticleTexture.fillCircle(0, 0, 2);
-        this.poisonParticleTexture.generateTexture('poisonParticle');
-        this.poisonParticleTexture.destroy();
+        // Create small particle textures for zones
+        this.createCircleTexture('lavaParticle', 0xff4500, 2);
+        this.createCircleTexture('poisonParticle', 0x00ff00, 2);
 
         // Get canvas dimensions
         this.canvasWidth = this.game.config.width;
@@ -473,126 +463,10 @@ class GameScene extends Phaser.Scene {
         }
 
         // Handle lava zone placement
-        if (this.placingLavaZone) {
-            const pointer = this.input.activePointer;
-            // Update preview position to follow mouse
-            if (this.lavaZonePreview) {
-                this.lavaZonePreview.setPosition(pointer.worldX, pointer.worldY);
-            }
-            // Place zone on click
-            if (pointer.isDown && this.lavaZonePreview) {
-                const x = pointer.worldX;
-                const y = pointer.worldY;
-                const zone = this.add.graphics();
-                zone.fillStyle(0xff4500, 0.7); // orange red
-                zone.fillCircle(x, y, 50);
-                // Add particle emitter for bubbling lava effect
-                const emitter = this.add.particles(x, y, 'lavaParticle', {
-                    speed: { min: 10, max: 50 },
-                    scale: { start: 0.5, end: 0 },
-                    lifespan: 1000,
-                    frequency: 100,
-                    quantity: 2,
-                    emitting: true
-                });
-                // Add glow for heat effect
-                const glow = this.add.graphics();
-                glow.fillStyle(0xff4500, 0.3);
-                glow.fillCircle(x, y, 60);
-                // Animate glow for flickering heat effect
-                this.tweens.add({
-                    targets: glow,
-                    alpha: { from: 0.3, to: 0.5 },
-                    duration: 300,
-                    yoyo: true,
-                    repeat: -1
-                });
-                // Add inner wave effect
-                const innerWave = this.add.graphics();
-                innerWave.fillStyle(0xff4500, 0.4);
-                innerWave.fillCircle(0, 0, 20);
-                innerWave.setPosition(x, y);
-                // Animate inner wave for movement effect: starts small, grows to circle size, shrinks back
-                this.tweens.add({
-                    targets: innerWave,
-                    scaleX: { from: 0.1, to: 2.0 },
-                    scaleY: { from: 0.1, to: 2.0 },
-                    duration: 2000,
-                    yoyo: true,
-                    repeat: -1,
-                    ease: 'Sine.easeInOut'
-                });
-                this.lavaZones.push({ x, y, radius: 50, graphics: zone, emitter, glow, innerWave });
-                this.lavaZonePreview.destroy();
-                this.lavaZonePreview = null;
-                this.placingLavaZone = false;
-                this.upgradeText.textContent = 'Lava zone placed!';
-                this.time.delayedCall(2000, () => {
-                    this.upgradeText.textContent = '';
-                });
-            }
-        }
+        this.handleZonePlacement('lava');
 
         // Handle poison zone placement
-        if (this.placingPoisonZone) {
-            const pointer = this.input.activePointer;
-            // Update preview position to follow mouse
-            if (this.poisonZonePreview) {
-                this.poisonZonePreview.setPosition(pointer.worldX, pointer.worldY);
-            }
-            // Place zone on click
-            if (pointer.isDown && this.poisonZonePreview) {
-                const x = pointer.worldX;
-                const y = pointer.worldY;
-                const zone = this.add.graphics();
-                zone.fillStyle(0x00ff00, 0.7); // green
-                zone.fillCircle(x, y, 50);
-                // Add particle emitter for bubbling poison effect
-                const emitter = this.add.particles(x, y, 'poisonParticle', {
-                    speed: { min: 10, max: 50 },
-                    scale: { start: 0.5, end: 0 },
-                    lifespan: 1000,
-                    frequency: 100,
-                    quantity: 2,
-                    emitting: true
-                });
-                // Add glow for toxic effect
-                const glow = this.add.graphics();
-                glow.fillStyle(0x00ff00, 0.3);
-                glow.fillCircle(x, y, 60);
-                // Animate glow for flickering toxic effect
-                this.tweens.add({
-                    targets: glow,
-                    alpha: { from: 0.3, to: 0.5 },
-                    duration: 300,
-                    yoyo: true,
-                    repeat: -1
-                });
-                // Add inner wave effect
-                const innerWave = this.add.graphics();
-                innerWave.fillStyle(0x00ff00, 0.4);
-                innerWave.fillCircle(0, 0, 20);
-                innerWave.setPosition(x, y);
-                // Animate inner wave for movement effect: starts small, grows to circle size, shrinks back
-                this.tweens.add({
-                    targets: innerWave,
-                    scaleX: { from: 0.1, to: 2.0 },
-                    scaleY: { from: 0.1, to: 2.0 },
-                    duration: 2000,
-                    yoyo: true,
-                    repeat: -1,
-                    ease: 'Sine.easeInOut'
-                });
-                this.poisonZones.push({ x, y, radius: 50, graphics: zone, emitter, glow, innerWave });
-                this.poisonZonePreview.destroy();
-                this.poisonZonePreview = null;
-                this.placingPoisonZone = false;
-                this.upgradeText.textContent = 'Poison zone placed!';
-                this.time.delayedCall(2000, () => {
-                    this.upgradeText.textContent = '';
-                });
-            }
-        }
+        this.handleZonePlacement('poison');
 
         // Handle spikes placement
         if (this.placingSpikes) {
@@ -635,68 +509,10 @@ class GameScene extends Phaser.Scene {
         }
 
         // Lava zone damage
-        this.lavaZones.forEach(zone => {
-            this.enemies.children.entries.forEach(enemy => {
-                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
-                const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
-                if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
-                    if (!enemy.lastLavaDamage) {
-                        enemy.lastLavaDamage = 0;
-                    }
-                    const currentTime = this.time.now;
-                    if (currentTime - enemy.lastLavaDamage >= 1000) { // 1 damage per second
-                        enemy.damageTaken += 1;
-                        enemy.health -= 1;
-                        enemy.lastLavaDamage = currentTime;
-                        if (enemy.damageText) {
-                            enemy.damageText.setText("-" + enemy.damageTaken);
-                        } else {
-                            enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '24px', fill: '#ff0000' });
-                        }
-                        if (enemy.health <= 0) {
-                            if (enemy.damageText) { enemy.damageText.destroy(); }
-                            enemy.graphics.destroy();
-                            enemy.destroy();
-                            this.enemiesAlive--;
-                            this.remainingEnemies--;
-                            this.playerMoney++;
-                        }
-                    }
-                }
-            });
-        });
+        this.applyZoneDamage('lava');
 
         // Poison zone damage
-        this.poisonZones.forEach(zone => {
-            this.enemies.children.entries.forEach(enemy => {
-                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
-                const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
-                if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
-                    if (!enemy.lastPoisonDamage) {
-                        enemy.lastPoisonDamage = 0;
-                    }
-                    const currentTime = this.time.now;
-                    if (currentTime - enemy.lastPoisonDamage >= 1000) { // 1 damage per second
-                        enemy.damageTaken += 1;
-                        enemy.health -= 1;
-                        enemy.lastPoisonDamage = currentTime;
-                        if (enemy.damageText) {
-                            enemy.damageText.setText("-" + enemy.damageTaken);
-                        } else {
-                            enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '24px', fill: '#ff0000' });
-                        }
-                        if (enemy.health <= 0) {
-                            if (enemy.damageText) { enemy.damageText.destroy(); }
-                            enemy.graphics.destroy();
-                            enemy.destroy();
-                            this.enemiesAlive--;
-                            this.remainingEnemies--;
-                            this.playerMoney++;
-                        }
-                    }
-                }
-            });
-        });
+        this.applyZoneDamage('poison');
 
         // Spikes damage
         this.spikes.forEach(spike => {
@@ -1172,11 +988,7 @@ class GameScene extends Phaser.Scene {
                 this.upgradesound.play();
                 this.lastUpgradeSoundTime = currentTime;
             }
-            this.placingLavaZone = true;
-            this.lavaZonePreview = this.add.graphics();
-            this.lavaZonePreview.fillStyle(0xff4500, 0.5); // orange red
-            this.lavaZonePreview.fillCircle(0, 0, 50);
-            this.upgradeText.textContent = 'Click to place lava zone circle';
+            this.startZonePlacement('lava');
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudHealth) this.hudHealth.textContent = this.playerHealth;
             if (this.hudMoney) this.hudMoney.textContent = this.playerMoney;
@@ -1195,11 +1007,7 @@ class GameScene extends Phaser.Scene {
                 this.upgradesound.play();
                 this.lastUpgradeSoundTime = currentTime;
             }
-            this.placingPoisonZone = true;
-            this.poisonZonePreview = this.add.graphics();
-            this.poisonZonePreview.fillStyle(0x00ff00, 0.5); // green
-            this.poisonZonePreview.fillCircle(0, 0, 50);
-            this.upgradeText.textContent = 'Click to place poison zone circle';
+            this.startZonePlacement('poison');
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons();
@@ -1249,6 +1057,107 @@ class GameScene extends Phaser.Scene {
                 this.upgradeText.textContent = '';
             });
         }
+    }
+
+    // Helper to create a small circular texture for particles
+    createCircleTexture(key, color, radius = 2) {
+        const g = this.add.graphics();
+        g.fillStyle(color);
+        g.fillCircle(0, 0, radius);
+        g.generateTexture(key);
+        g.destroy();
+    }
+
+    // Start placement for lava or poison zones (creates preview)
+    startZonePlacement(kind) {
+        const cfg = {
+            lava: { previewProp: 'lavaZonePreview', placingProp: 'placingLavaZone', color: 0xff4500, particle: 'lavaParticle', text: 'Click to place lava zone circle' },
+            poison: { previewProp: 'poisonZonePreview', placingProp: 'placingPoisonZone', color: 0x00ff00, particle: 'poisonParticle', text: 'Click to place poison zone circle' }
+        }[kind];
+        if (!cfg) return;
+        this[cfg.placingProp] = true;
+        this[cfg.previewProp] = this.add.graphics();
+        this[cfg.previewProp].fillStyle(cfg.color, 0.5);
+        this[cfg.previewProp].fillCircle(0, 0, 50);
+        this.upgradeText.textContent = cfg.text;
+    }
+
+    // Handle placement for zones (called each update)
+    handleZonePlacement(kind) {
+        const pointer = this.input.activePointer;
+        if (kind === 'lava' && this.placingLavaZone) {
+            if (this.lavaZonePreview) this.lavaZonePreview.setPosition(pointer.worldX, pointer.worldY);
+            if (pointer.isDown && this.lavaZonePreview) {
+                const x = pointer.worldX;
+                const y = pointer.worldY;
+                const zone = this.add.graphics();
+                zone.fillStyle(0xff4500, 0.7);
+                zone.fillCircle(x, y, 50);
+                const emitter = this.add.particles(x, y, 'lavaParticle', {
+                    speed: { min: 10, max: 50 }, scale: { start: 0.5, end: 0 }, lifespan: 1000, frequency: 100, quantity: 2, emitting: true
+                });
+                const glow = this.add.graphics();
+                glow.fillStyle(0xff4500, 0.3); glow.fillCircle(x, y, 60);
+                this.tweens.add({ targets: glow, alpha: { from: 0.3, to: 0.5 }, duration: 300, yoyo: true, repeat: -1 });
+                const innerWave = this.add.graphics(); innerWave.fillStyle(0xff4500, 0.4); innerWave.fillCircle(0, 0, 20); innerWave.setPosition(x, y);
+                this.tweens.add({ targets: innerWave, scaleX: { from: 0.1, to: 2.0 }, scaleY: { from: 0.1, to: 2.0 }, duration: 2000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+                this.lavaZones.push({ x, y, radius: 50, graphics: zone, emitter, glow, innerWave });
+                this.lavaZonePreview.destroy(); this.lavaZonePreview = null; this.placingLavaZone = false;
+                this.upgradeText.textContent = 'Lava zone placed!';
+                this.time.delayedCall(2000, () => { this.upgradeText.textContent = ''; });
+            }
+        }
+        if (kind === 'poison' && this.placingPoisonZone) {
+            if (this.poisonZonePreview) this.poisonZonePreview.setPosition(pointer.worldX, pointer.worldY);
+            if (pointer.isDown && this.poisonZonePreview) {
+                const x = pointer.worldX;
+                const y = pointer.worldY;
+                const zone = this.add.graphics();
+                zone.fillStyle(0x00ff00, 0.7);
+                zone.fillCircle(x, y, 50);
+                const emitter = this.add.particles(x, y, 'poisonParticle', {
+                    speed: { min: 10, max: 50 }, scale: { start: 0.5, end: 0 }, lifespan: 1000, frequency: 100, quantity: 2, emitting: true
+                });
+                const glow = this.add.graphics(); glow.fillStyle(0x00ff00, 0.3); glow.fillCircle(x, y, 60);
+                this.tweens.add({ targets: glow, alpha: { from: 0.3, to: 0.5 }, duration: 300, yoyo: true, repeat: -1 });
+                const innerWave = this.add.graphics(); innerWave.fillStyle(0x00ff00, 0.4); innerWave.fillCircle(0, 0, 20); innerWave.setPosition(x, y);
+                this.tweens.add({ targets: innerWave, scaleX: { from: 0.1, to: 2.0 }, scaleY: { from: 0.1, to: 2.0 }, duration: 2000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+                this.poisonZones.push({ x, y, radius: 50, graphics: zone, emitter, glow, innerWave });
+                this.poisonZonePreview.destroy(); this.poisonZonePreview = null; this.placingPoisonZone = false;
+                this.upgradeText.textContent = 'Poison zone placed!';
+                this.time.delayedCall(2000, () => { this.upgradeText.textContent = ''; });
+            }
+        }
+    }
+
+    // Apply damage to enemies inside lava/poison zones (kind: 'lava' | 'poison')
+    applyZoneDamage(kind) {
+        const zones = kind === 'lava' ? this.lavaZones : this.poisonZones;
+        const lastKey = kind === 'lava' ? 'lastLavaDamage' : 'lastPoisonDamage';
+        zones.forEach(zone => {
+            this.enemies.children.entries.forEach(enemy => {
+                const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
+                const zoneCircle = new Phaser.Geom.Circle(zone.x, zone.y, zone.radius);
+                if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, zoneCircle)) {
+                    if (!enemy[lastKey]) enemy[lastKey] = 0;
+                    const currentTime = this.time.now;
+                    if (currentTime - enemy[lastKey] >= 1000) {
+                        enemy.damageTaken += 1;
+                        enemy.health -= 1;
+                        enemy[lastKey] = currentTime;
+                        if (enemy.damageText) {
+                            enemy.damageText.setText("-" + enemy.damageTaken);
+                        } else {
+                            enemy.damageText = this.add.text(enemy.x + 10, enemy.y - 25, "-" + enemy.damageTaken, { fontSize: '24px', fill: '#ff0000' });
+                        }
+                        if (enemy.health <= 0) {
+                            if (enemy.damageText) enemy.damageText.destroy();
+                            enemy.graphics.destroy(); enemy.destroy(); this.enemiesAlive--; this.remainingEnemies--; this.playerMoney++;
+                        }
+                    }
+                }
+            });
+        });
     }
 
 
