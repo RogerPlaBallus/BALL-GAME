@@ -5,7 +5,7 @@ body {
     justify-content: flex-start;
     align-items: center;
     height: 100vh;
-    background-color: #000000;
+    background-color: #000000f0;
     font-family: Arial, sans-serif;
     overflow: hidden;
 }
@@ -14,10 +14,12 @@ body {
     position: relative;
     margin-left: 328px;
     top: 1px;
+    background-color: transparent;
 }
 
 canvas {
     display: block;
+    background-color: transparent;
 }
 
 #start-text {

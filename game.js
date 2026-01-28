@@ -90,6 +90,9 @@ class GameScene extends Phaser.Scene {
         this.canvasWidth = this.game.config.width;
         this.canvasHeight = this.game.config.height;
 
+        // Set canvas background color
+        
+
         // Player (white sphere at center)
         this.player = this.add.graphics();
         this.player.fillStyle(0xffffff);
@@ -177,6 +180,7 @@ class GameScene extends Phaser.Scene {
         if (this.canvas) {
             this.canvas.style.display = 'none';
             this.canvas.style.border = 'none';
+            this.canvas.style.backgroundColor = '#000000f0';
         }
 
         // Damage upgrade button
@@ -734,7 +738,7 @@ class GameScene extends Phaser.Scene {
                 this.pulseTimer = 0;
             }
             if (this.pulseActive) {
-                this.pulseRadius += delta * 0.5; // expand speed
+                this.pulseRadius += delta * 0.5; //  speed
                 if (this.pulseGraphics) {
                     this.pulseGraphics.clear();
                     this.pulseGraphics.fillStyle(0xffffff, 0.3);
@@ -745,8 +749,12 @@ class GameScene extends Phaser.Scene {
                     const enemyCircle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
                     const pulseCircle = new Phaser.Geom.Circle(this.canvasWidth / 2, this.canvasHeight / 2, this.pulseRadius);
                     if (Phaser.Geom.Intersects.CircleToCircle(enemyCircle, pulseCircle)) {
-                        if (!enemy.lastPulseDamage || enemy.lastPulseDamage !== this.pulseLevel) {
-                            enemy.lastPulseDamage = this.pulseLevel;
+                        if (!enemy.lastPulseDamage) {
+                            enemy.lastPulseDamage = 0;
+                        }
+                        const currentTime = this.time.now;
+                        if (currentTime - enemy.lastPulseDamage >= 500) { // damage every 500ms during pulse
+                            enemy.lastPulseDamage = currentTime;
                             enemy.damageTaken += this.pulseDamage;
                             enemy.health -= this.pulseDamage;
                             if (enemy.damageText) {
@@ -813,6 +821,7 @@ class GameScene extends Phaser.Scene {
         if (this.canvas) {
             this.canvas.style.display = 'block';
             this.canvas.style.border = '1px solid #fff';
+            this.canvas.style.backgroundColor = 'transparent';
         }
         this.upgradeWindow.style.display = 'block';
         document.getElementById('stats-window').style.display = 'flex';
@@ -1009,6 +1018,7 @@ class GameScene extends Phaser.Scene {
         enemy.lastSpikeDamage = 0;
         enemy.lastLavaDamage = 0;
         enemy.lastPoisonDamage = 0;
+        enemy.lastPulseDamage = 0;
         enemy.setCollideWorldBounds(false);
 
         // Add graphics for enemy
@@ -1407,6 +1417,7 @@ const config = {
     width: 800,
     height: 600,
     parent: 'game-container',
+    transparent: true,
     physics: {
         default: 'arcade',
         arcade: {
