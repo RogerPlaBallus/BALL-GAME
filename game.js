@@ -58,6 +58,7 @@ class GameScene extends Phaser.Scene {
         this.gameOver = false;
         this.levelComplete = false;
         this.paused = false;
+        this.infiniteMode = false;
         this.laserActive = false;
         this.damageTimer = 0;
         this.playerDamageTimer = 0;
@@ -156,6 +157,12 @@ class GameScene extends Phaser.Scene {
 
         // Game Win overlay
         this.gameWinText = document.getElementById('game-win');
+
+        // Infinite Mode button
+        this.infiniteModeButton = document.getElementById('infinite-mode-button');
+        this.infiniteModeButton.addEventListener('click', () => {
+            this.startInfiniteMode();
+        });
 
         // Game Paused overlay
         this.gamePausedText = document.getElementById('game-paused');
@@ -410,8 +417,8 @@ class GameScene extends Phaser.Scene {
         }
 
         // Update HUD
-        if (this.hudLevel) this.hudLevel.textContent = this.level;
-        if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
+        if (this.hudLevel) this.hudLevel.textContent = this.infiniteMode ? '∞' : this.level;
+        if (this.hudEnemies) this.hudEnemies.textContent = this.infiniteMode ? '∞' : this.remainingEnemies;
 
         // Update stats
         if (this.statsLevel) this.statsLevel.textContent = this.level;
@@ -425,7 +432,7 @@ class GameScene extends Phaser.Scene {
         this.updateUpgradeButtons();
 
         // Check level complete
-        if (this.enemiesAlive === 0 && this.enemiesSpawned === this.enemiesToSpawn) {
+        if (!this.infiniteMode && this.enemiesAlive === 0 && this.enemiesSpawned === this.enemiesToSpawn) {
             this.levelComplete = true;
             this.physics.pause();
             // Clear lasers when level ends
@@ -456,6 +463,7 @@ class GameScene extends Phaser.Scene {
             }
             if (this.level === this.maxLevel) {
                 this.gameWinText.style.display = 'block';
+                this.infiniteModeButton.style.display = 'block';
             } else {
                 this.levelCompleteText.style.display = 'block';
                 this.nextLevelButton.style.display = 'block';
@@ -820,15 +828,23 @@ class GameScene extends Phaser.Scene {
         enemy.body.debugShowStroke = false;
         enemy.setCircle(16);
 
-        // Set enemy health based on level
-        if (this.level <= 4) {
-            enemy.health = 5;
-        } else if (this.level <= 9) {
-            enemy.health = 7;
-        } else if (this.level <= 14) {
-            enemy.health = 10;
+        // Set enemy health based on level or infinite mode
+        let baseHealth;
+        if (this.infiniteMode) {
+            baseHealth = 15; // Start with level 20 health
+            const healthMultiplier = Math.floor(this.enemiesSpawned / 50) * 0.03;
+            enemy.health = Math.floor(baseHealth * (1 + healthMultiplier));
         } else {
-            enemy.health = 15;
+            if (this.level <= 4) {
+                baseHealth = 5;
+            } else if (this.level <= 9) {
+                baseHealth = 7;
+            } else if (this.level <= 14) {
+                baseHealth = 10;
+            } else {
+                baseHealth = 15;
+            }
+            enemy.health = baseHealth;
         }
         enemy.damageTaken = 0;
         enemy.lastSpikeDamage = 0;
@@ -1214,6 +1230,18 @@ class GameScene extends Phaser.Scene {
         this.restartConfirm.style.display = 'none';
     }
 
+    startInfiniteMode() {
+        this.gameWinText.style.display = 'none';
+        this.infiniteModeButton.style.display = 'none';
+        this.infiniteMode = true;
+        this.enemiesToSpawn = Infinity; // Set to infinity for infinite spawning
+        this.remainingEnemies = Infinity;
+        this.enemiesPerBatch = 20; // Increase batch size for infinite mode
+        this.spawnInterval = 1000; // Faster spawning
+        this.physics.resume();
+        this.startLevel();
+    }
+
     resetToMenu() {
         // Reset game variables (same as restartGame)
         this.playerMaxHealth = 5;
@@ -1256,6 +1284,7 @@ class GameScene extends Phaser.Scene {
         this.levelCompleteSoundPlayed = false;
         this.playerWinSoundPlayed = false;
         this.killSoundPlayed = false;
+        this.infiniteMode = false; // Reset infinite mode
 
         // Clear enemies
         const enemiesToDestroy = [...this.enemies.children.entries];

@@ -26,6 +26,7 @@ Control a white sphere that automatically shoots lasers at approaching red enemi
 - 20 challenging levels
 - Sound effects and background music
 - Pause and restart options
+- Infinite mode added! See how long can you survive
 
 ## Technologies
 

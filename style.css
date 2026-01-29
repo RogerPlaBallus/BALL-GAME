@@ -187,6 +187,22 @@ canvas {
     display: none;
 }
 
+#infinite-mode-button {
+    position: absolute;
+    top: calc(40% + 150px);
+    left: 52%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    font-size: 24px;
+    background-color: #fff;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    display: none;
+    text-align: center;
+}
+
 #game-paused {
     position: absolute;
     top: 40%;
