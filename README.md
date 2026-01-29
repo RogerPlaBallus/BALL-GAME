@@ -1,4 +1,4 @@
-<img width="1615" height="892" alt="image" src="https://github.com/user-attachments/assets/23d58fc5-ad6a-4859-9f97-ebb794fd50c3" />
+![demo](https://github.com/user-attachments/assets/ec09a355-96af-409d-8b34-775d6fb80de3)
 
 # BALL GAME
 
@@ -26,7 +26,7 @@ Control a white sphere that automatically shoots lasers at approaching red enemi
 - 20 challenging levels
 - Sound effects and background music
 - Pause and restart options
-- Infinite mode added! See how long can you survive
+- Added infinite mode, see how long can you survive!
 
 ## Technologies
 
