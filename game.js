@@ -21,6 +21,7 @@ class GameScene extends Phaser.Scene {
         this.playerDamage = 1;
         this.damageLevel = 0;
         this.healthLevel = 0;
+        this.playerSizeMultiplier = 0; // Size increase: 0-0.15 (0-15%)
         this.playerCritChance = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
@@ -44,6 +45,9 @@ class GameScene extends Phaser.Scene {
         this.pulseRadius = 0;
         this.pulseMaxRadius = 500; // max radius to cover map corners
         this.pulseGraphics = null;
+        this.bounceLevel = 0;
+        this.bounceBouncesCount = 0; // number of bounces per laser
+        this.bouncePaths = []; // Store bounce paths for visualization
         this.laserSpeed = 500; // milliseconds between laser damages
         this.level = 1;
         this.maxLevel = 20;
@@ -85,12 +89,14 @@ class GameScene extends Phaser.Scene {
         
 
         // Player (white sphere at center)
+        this.playerBaseSize = 20;
+        this.playerCurrentSize = this.playerBaseSize;
         this.player = this.add.graphics();
         this.player.fillStyle(0xffffff);
-        this.player.fillCircle(this.canvasWidth / 2, this.canvasHeight / 2, 20);
+        this.player.fillCircle(this.canvasWidth / 2, this.canvasHeight / 2, this.playerCurrentSize);
 
         // Player circle for collision
-        this.playerCircle = new Phaser.Geom.Circle(this.canvasWidth / 2, this.canvasHeight / 2, 20);
+        this.playerCircle = new Phaser.Geom.Circle(this.canvasWidth / 2, this.canvasHeight / 2, this.playerCurrentSize);
 
         // Enemies group
         this.enemies = this.physics.add.group();
@@ -228,6 +234,12 @@ class GameScene extends Phaser.Scene {
             this.buyPulse();
         });
 
+        // Bounce upgrade button
+        this.bounceButton = document.getElementById('bounce-button');
+        this.bounceButton.addEventListener('click', () => {
+            this.buyBounce();
+        });
+
         // Stats elements
         this.statsLevel = document.getElementById('stats-level');
         this.statsHealth = document.getElementById('stats-health');
@@ -349,6 +361,11 @@ class GameScene extends Phaser.Scene {
 
         // Handle laser
         if (this.laserActive) {
+            // Update bounce paths every frame for smooth real-time following
+            if (this.bounceLevel > 0) {
+                this.updateBouncePaths();
+            }
+            
             this.drawLaser();
 
             // Check laser hits
@@ -359,6 +376,7 @@ class GameScene extends Phaser.Scene {
                 this.targets.forEach((target, index) => {
                     this.enemies.children.entries.forEach(enemy => {
                         if (this.checkLaserHit(target.x, target.y, enemy)) {
+                            // Apply initial damage
                             let damage = this.playerDamage;
                             const isCrit = Math.random() < this.playerCritChance / 100;
                             if (isCrit) {
@@ -379,6 +397,11 @@ class GameScene extends Phaser.Scene {
                                 this.enemiesAlive--;
                                 this.remainingEnemies--;
                                 this.playerMoney++;
+                            }
+                            
+                            // Handle bounce damage if bounce upgrade is purchased
+                            if (this.bounceLevel > 0) {
+                                this.applyBounce(enemy, damage, new Set([enemy]), 0, index);
                             }
                         }
                     });
@@ -627,15 +650,15 @@ class GameScene extends Phaser.Scene {
             // Clear poison zones on game over
             this.poisonZones.forEach(zone => {
                 if (zone.emitter) zone.emitter.destroy();
-                if (zone.glow) zone.glow.destroy();
-                if (zone.innerWave) zone.innerWave.destroy();
-                zone.graphics.destroy();
+                if (zone.glow) { zone.glow.clear(); zone.glow.destroy(); }
+                if (zone.innerWave) { zone.innerWave.clear(); zone.innerWave.destroy(); }
+                if (zone.graphics) { zone.graphics.clear(); zone.graphics.destroy(); }
             });
             this.poisonZones = [];
             // Clear spikes on game over
             this.spikes.forEach(spike => {
-                if (spike.innerWave) spike.innerWave.destroy();
-                spike.graphics.destroy();
+                if (spike.innerWave) { spike.innerWave.clear(); spike.innerWave.destroy(); }
+                if (spike.graphics) { spike.graphics.clear(); spike.graphics.destroy(); }
             });
             this.spikes = [];
         }
@@ -733,25 +756,28 @@ class GameScene extends Phaser.Scene {
         // Clear lava zones
         this.lavaZones.forEach(zone => {
             if (zone.emitter) zone.emitter.destroy();
-            if (zone.glow) zone.glow.destroy();
-            if (zone.innerWave) zone.innerWave.destroy();
-            zone.graphics.destroy();
+            if (zone.glow) { zone.glow.clear(); zone.glow.destroy(); }
+            if (zone.innerWave) { zone.innerWave.clear(); zone.innerWave.destroy(); }
+            if (zone.graphics) { zone.graphics.clear(); zone.graphics.destroy(); }
         });
         // Clear poison zones
         this.poisonZones.forEach(zone => {
             if (zone.emitter) zone.emitter.destroy();
-            if (zone.glow) zone.glow.destroy();
-            if (zone.innerWave) zone.innerWave.destroy();
-            zone.graphics.destroy();
+            if (zone.glow) { zone.glow.clear(); zone.glow.destroy(); }
+            if (zone.innerWave) { zone.innerWave.clear(); zone.innerWave.destroy(); }
+            if (zone.graphics) { zone.graphics.clear(); zone.graphics.destroy(); }
         });
         // Clear spikes
         this.spikes.forEach(spike => {
-            if (spike.innerWave) spike.innerWave.destroy();
-            spike.graphics.destroy();
+            if (spike.innerWave) { spike.innerWave.clear(); spike.innerWave.destroy(); }
+            if (spike.graphics) { spike.graphics.clear(); spike.graphics.destroy(); }
         });
 
         // Clear lasers
         this.lasers.forEach(laser => laser.clear());
+
+        // Kill any ongoing tweens
+        this.tweens.killAll();
 
         // Reset game variables
         this.playerMaxHealth = 5;
@@ -760,6 +786,7 @@ class GameScene extends Phaser.Scene {
         this.playerDamage = 1;
         this.damageLevel = 0;
         this.healthLevel = 0;
+        this.playerSizeMultiplier = 0; // Reset player size to base
         this.playerCritChance = 0;
         this.moreLasers = false;
         this.moreLasersLevel = 0;
@@ -779,6 +806,9 @@ class GameScene extends Phaser.Scene {
         this.pulseActive = false;
         this.pulseRadius = 0;
         this.pulseGraphics = null;
+        this.bounceLevel = 0;
+        this.bounceBouncesCount = 0;
+        this.bouncePaths = [];
         this.level = 1;
         this.enemiesToSpawn = 10;
         this.enemiesSpawned = 0;
@@ -800,6 +830,13 @@ class GameScene extends Phaser.Scene {
         this.tryAgainButton.style.display = 'none';
 
         this.lasers = [this.add.graphics()];
+
+        // Reset player size
+        this.playerCurrentSize = this.playerBaseSize;
+        this.player.clear();
+        this.player.fillStyle(0xffffff);
+        this.player.fillCircle(this.canvasWidth / 2, this.canvasHeight / 2, this.playerCurrentSize);
+        this.playerCircle.radius = this.playerCurrentSize;
 
         // Update HUD
         if (this.hudLevel) this.hudLevel.textContent = this.level;
@@ -915,6 +952,32 @@ class GameScene extends Phaser.Scene {
                 laser.moveTo(playerX, playerY);
                 laser.lineTo(targetX, targetY);
                 laser.strokePath();
+                
+                // Draw bounce paths for this laser
+                this.bouncePaths.forEach(path => {
+                    if (path.laserIndex === index) {
+                        // Solid core for bounce
+                        laser.lineStyle(3, color, 1);
+                        laser.beginPath();
+                        laser.moveTo(path.fromX, path.fromY);
+                        laser.lineTo(path.toX, path.toY);
+                        laser.strokePath();
+
+                        // Outer glow layer for bounce
+                        laser.lineStyle(8, color, 0.4);
+                        laser.beginPath();
+                        laser.moveTo(path.fromX, path.fromY);
+                        laser.lineTo(path.toX, path.toY);
+                        laser.strokePath();
+
+                        // Subtle outer glow for bounce
+                        laser.lineStyle(12, color, 0.2);
+                        laser.beginPath();
+                        laser.moveTo(path.fromX, path.fromY);
+                        laser.lineTo(path.toX, path.toY);
+                        laser.strokePath();
+                    }
+                });
             } else {
                 laser.clear();
             }
@@ -925,6 +988,122 @@ class GameScene extends Phaser.Scene {
         const line = new Phaser.Geom.Line(this.canvasWidth / 2, this.canvasHeight / 2, mouseX, mouseY);
         const circle = new Phaser.Geom.Circle(enemy.x, enemy.y, 16);
         return Phaser.Geom.Intersects.LineToCircle(line, circle);
+    }
+
+    updateBouncePaths() {
+        // Recalculate bounce paths every frame based on current target positions
+        this.bouncePaths = [];
+        
+        this.targets.forEach((target, laserIndex) => {
+            // Find the enemy at the current target position (or closest to it)
+            let hitEnemy = null;
+            this.enemies.children.entries.forEach(enemy => {
+                const distance = Phaser.Math.Distance.Between(enemy.x, enemy.y, target.x, target.y);
+                if (distance < 30) { // tolerance for movement
+                    hitEnemy = enemy;
+                }
+            });
+            
+            // If we found an enemy, calculate bounce chains from it
+            if (hitEnemy && hitEnemy.health > 0) {
+                this.calculateBounceChain(hitEnemy, new Set([hitEnemy]), 0, laserIndex);
+            }
+        });
+    }
+
+    calculateBounceChain(currentEnemy, hitEnemies, bounceCount, laserIndex) {
+        // Recursively calculate bounce paths without applying damage
+        if (bounceCount >= this.bounceBouncesCount) {
+            return; // Stop bouncing
+        }
+        
+        // Find nearest alive enemy that hasn't been hit yet
+        let nearestEnemy = null;
+        let nearestDistance = Infinity;
+        
+        this.enemies.children.entries.forEach(enemy => {
+            // Skip if enemy has already been hit or is the current enemy
+            if (!hitEnemies.has(enemy) && enemy !== currentEnemy && enemy.health > 0) {
+                const distance = Phaser.Math.Distance.Between(currentEnemy.x, currentEnemy.y, enemy.x, enemy.y);
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestEnemy = enemy;
+                }
+            }
+        });
+        
+        // If found a valid target, store the path and recurse
+        if (nearestEnemy) {
+            hitEnemies.add(nearestEnemy);
+            
+            // Store bounce path for visualization
+            this.bouncePaths.push({
+                fromX: currentEnemy.x,
+                fromY: currentEnemy.y,
+                toX: nearestEnemy.x,
+                toY: nearestEnemy.y,
+                laserIndex: laserIndex
+            });
+            
+            // Continue bouncing
+            this.calculateBounceChain(nearestEnemy, hitEnemies, bounceCount + 1, laserIndex);
+        }
+    }
+
+    applyBounce(currentEnemy, damage, hitEnemies, bounceCount, laserIndex) {
+        // Recursively apply damage to nearest enemies
+        if (bounceCount >= this.bounceBouncesCount) {
+            return; // Stop bouncing
+        }
+        
+        // Find nearest alive enemy that hasn't been hit yet
+        let nearestEnemy = null;
+        let nearestDistance = Infinity;
+        
+        this.enemies.children.entries.forEach(enemy => {
+            // Skip if enemy has already been hit or is the current enemy
+            if (!hitEnemies.has(enemy) && enemy !== currentEnemy && enemy.health > 0) {
+                const distance = Phaser.Math.Distance.Between(currentEnemy.x, currentEnemy.y, enemy.x, enemy.y);
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestEnemy = enemy;
+                }
+            }
+        });
+        
+        // If found a valid target, apply damage and recurse
+        if (nearestEnemy) {
+            hitEnemies.add(nearestEnemy);
+            
+            // Store bounce path for visualization
+            this.bouncePaths.push({
+                fromX: currentEnemy.x,
+                fromY: currentEnemy.y,
+                toX: nearestEnemy.x,
+                toY: nearestEnemy.y,
+                laserIndex: laserIndex
+            });
+            
+            nearestEnemy.damageTaken += damage;
+            nearestEnemy.health -= damage;
+            if (nearestEnemy.damageText) {
+                nearestEnemy.damageText.setText("-" + nearestEnemy.damageTaken);
+            } else {
+                nearestEnemy.damageText = this.add.text(nearestEnemy.x + 10, nearestEnemy.y - 25, "-" + nearestEnemy.damageTaken, { fontSize: '20px', fill: '#ff0000' });
+            }
+            
+            if (nearestEnemy.health <= 0) {
+                if (nearestEnemy.damageText) { nearestEnemy.damageText.destroy(); }
+                nearestEnemy.graphics.destroy();
+                nearestEnemy.destroy();
+                this.enemiesAlive--;
+                this.remainingEnemies--;
+                this.playerMoney++;
+            }
+            
+            // Continue bouncing
+            this.applyBounce(nearestEnemy, damage, hitEnemies, bounceCount + 1, laserIndex);
+        }
     }
 
     nextLevel() {
@@ -996,12 +1175,34 @@ class GameScene extends Phaser.Scene {
             this.healthLevel++;
             this.playerMaxHealth = healthValues[this.healthLevel];
             this.playerHealth = this.playerMaxHealth; // Reset current health to new max
+            
+            // Increase player size by 5% if not at max (15%)
+            if (this.playerSizeMultiplier < 0.15) {
+                this.playerSizeMultiplier += 0.05;
+                // Animate the size increase
+                const targetSize = this.playerBaseSize * (1 + this.playerSizeMultiplier);
+                this.tweens.add({
+                    targets: this,
+                    playerCurrentSize: targetSize,
+                    duration: 500,
+                    ease: 'Power2.easeOut',
+                    onUpdate: () => {
+                        // Redraw player during animation
+                        this.player.clear();
+                        this.player.fillStyle(0xffffff);
+                        this.player.fillCircle(this.canvasWidth / 2, this.canvasHeight / 2, this.playerCurrentSize);
+                        // Update collision circle
+                        this.playerCircle.radius = this.playerCurrentSize;
+                    }
+                });
+            }
+            
             const currentTime = this.time.now;
             if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
                 this.upgradesound.play();
                 this.lastUpgradeSoundTime = currentTime;
             }
-            this.upgradeText.textContent = `Health upgraded! Now level ${this.healthLevel}/3.`;
+            this.upgradeText.textContent = `Health upgraded! Now level ${this.healthLevel}/3. Player size +5%`;
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
             this.updateUpgradeButtons(); // Update button text immediately after purchase
@@ -1061,6 +1262,8 @@ class GameScene extends Phaser.Scene {
             }
             this.placingSpikes = true;
             this.spikesPreview = this.add.graphics();
+            // Position the graphics object off-screen initially to prevent the grey box appearing at (0,0)
+            this.spikesPreview.setPosition(-1000, -1000);
             this.spikesPreview.fillStyle(0x808080, 0.5); // grey
             this.spikesPreview.fillCircle(0, 0, 15);
             this.upgradeText.textContent = 'Click to place spikes';
@@ -1093,12 +1296,36 @@ class GameScene extends Phaser.Scene {
         }
     }
 
+    buyBounce() {
+        const costs = [500, 1000, 1000];
+        const bounceValues = [2, 3, 5]; // bounces for levels 1, 2, 3
+        if (this.bounceLevel < 3 && this.playerMoney >= costs[this.bounceLevel]) {
+            this.playerMoney -= costs[this.bounceLevel];
+            this.bounceLevel++;
+            this.bounceBouncesCount = bounceValues[this.bounceLevel - 1]; // 2, 3, or 5 bounces
+            const currentTime = this.time.now;
+            if (currentTime - this.lastUpgradeSoundTime > 100) { // Prevent overlapping sounds
+                this.upgradesound.play();
+                this.lastUpgradeSoundTime = currentTime;
+            }
+            this.upgradeText.textContent = `Bounce upgraded! Now level ${this.bounceLevel}/3.`;
+            if (this.hudLevel) this.hudLevel.textContent = this.level;
+            if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
+            this.updateUpgradeButtons(); // Update button text immediately after purchase
+            // Clear the upgrade text after 5 seconds
+            this.time.delayedCall(5000, () => {
+                this.upgradeText.textContent = '';
+            });
+        }
+    }
+
     // Helper to create a small circular texture for particles
     createCircleTexture(key, color, radius = 2) {
         const g = this.add.graphics();
         g.fillStyle(color);
-        g.fillCircle(0, 0, radius);
-        g.generateTexture(key);
+        g.fillCircle(radius, radius, radius);
+        // The texture size should be (radius*2)x(radius*2)
+        g.generateTexture(key, radius * 2, radius * 2);
         g.destroy();
     }
 
@@ -1109,10 +1336,20 @@ class GameScene extends Phaser.Scene {
             poison: { previewProp: 'poisonZonePreview', placingProp: 'placingPoisonZone', color: 0x00ff00, particle: 'poisonParticle', text: 'Click to place poison zone circle' }
         }[kind];
         if (!cfg) return;
+        // Clean up any existing preview
+        if (this[cfg.previewProp]) {
+            this[cfg.previewProp].clear();
+            this[cfg.previewProp].setPosition(-1000, -1000);
+            this[cfg.previewProp].destroy();
+        }
         this[cfg.placingProp] = true;
         this[cfg.previewProp] = this.add.graphics();
-        this[cfg.previewProp].fillStyle(cfg.color, 0.5);
-        this[cfg.previewProp].fillCircle(0, 0, 50);
+        // Defensive: clear, move off-screen, and hide immediately
+        this[cfg.previewProp].clear();
+        this[cfg.previewProp].setPosition(-1000, -1000);
+        this[cfg.previewProp].visible = false;
+        // Store color info for later drawing
+        this[cfg.previewProp]._zoneColor = cfg.color;
         this.upgradeText.textContent = cfg.text;
     }
 
@@ -1120,48 +1357,110 @@ class GameScene extends Phaser.Scene {
     handleZonePlacement(kind) {
         const pointer = this.input.activePointer;
         if (kind === 'lava' && this.placingLavaZone) {
-            if (this.lavaZonePreview) this.lavaZonePreview.setPosition(pointer.worldX, pointer.worldY);
+            if (this.lavaZonePreview && pointer) {
+                // Only draw preview if pointer is inside play area and not at (0,0)
+                if (
+                    pointer.worldX > 0 && pointer.worldY > 0 &&
+                    pointer.worldX < this.canvasWidth && pointer.worldY < this.canvasHeight
+                ) {
+                    this.lavaZonePreview.visible = true;
+                    this.lavaZonePreview.clear();
+                    this.lavaZonePreview.fillStyle(0xff4500, 0.5);
+                    this.lavaZonePreview.fillCircle(0, 0, 50);
+                    this.lavaZonePreview.setPosition(pointer.worldX, pointer.worldY);
+                } else {
+                    this.lavaZonePreview.visible = false;
+                    this.lavaZonePreview.clear();
+                    this.lavaZonePreview.setPosition(-1000, -1000);
+                }
+            }
             if (!this.pointerWasDown && pointer.isDown && this.lavaZonePreview) {
                 const x = pointer.worldX;
                 const y = pointer.worldY;
                 // Prevent placement at invalid positions like (0,0)
                 if (x <= 0 || y <= 0 || x >= this.canvasWidth || y >= this.canvasHeight) return;
+                // Clear and destroy preview immediately before creating zone
+                if (this.lavaZonePreview) {
+                    this.lavaZonePreview.clear();
+                    this.lavaZonePreview.setPosition(-1000, -1000);
+                    this.lavaZonePreview.destroy();
+                    this.lavaZonePreview = null;
+                }
+                this.placingLavaZone = false;
+                console.log('[LAVA] Creating zone at', x, y);
                 const zone = this.add.graphics();
                 zone.fillStyle(0xff4500, 0.7);
-                zone.fillCircle(x, y, 50);
-                const emitter = this.add.particles(x, y, 'lavaParticle', {
+                zone.fillCircle(0, 0, 50);
+                zone.setPosition(x, y);
+                zone.setDepth(10);
+                console.log('[LAVA] Creating emitter at', x, y);
+                const emitter = this.add.particles('lavaParticle', {
                     speed: { min: 10, max: 50 }, scale: { start: 0.5, end: 0 }, lifespan: 1000, frequency: 100, quantity: 2, emitting: true
-                });
+                }).setPosition(x, y);
+                console.log('[LAVA] Creating glow at', x, y);
                 const glow = this.add.graphics();
-                glow.fillStyle(0xff4500, 0.3); glow.fillCircle(x, y, 60);
+                glow.fillStyle(0xff4500, 0.3); glow.fillCircle(0, 0, 60); glow.setPosition(x, y);
+                glow.setDepth(5);
                 this.tweens.add({ targets: glow, alpha: { from: 0.3, to: 0.5 }, duration: 300, yoyo: true, repeat: -1 });
+                console.log('[LAVA] Creating innerWave at', x, y);
                 const innerWave = this.add.graphics(); innerWave.fillStyle(0xff4500, 0.4); innerWave.fillCircle(0, 0, 20); innerWave.setPosition(x, y);
+                innerWave.setDepth(15);
                 this.tweens.add({ targets: innerWave, scaleX: { from: 0.1, to: 2.0 }, scaleY: { from: 0.1, to: 2.0 }, duration: 2000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
                 this.lavaZones.push({ x, y, radius: 50, graphics: zone, emitter, glow, innerWave });
-                this.lavaZonePreview.destroy(); this.lavaZonePreview = null; this.placingLavaZone = false;
                 this.upgradeText.textContent = 'Lava zone placed!';
                 this.time.delayedCall(2000, () => { this.upgradeText.textContent = ''; });
             }
         }
         if (kind === 'poison' && this.placingPoisonZone) {
-            if (this.poisonZonePreview) this.poisonZonePreview.setPosition(pointer.worldX, pointer.worldY);
+            if (this.poisonZonePreview && pointer) {
+                // Only draw preview if pointer is inside play area and not at (0,0)
+                if (
+                    pointer.worldX > 0 && pointer.worldY > 0 &&
+                    pointer.worldX < this.canvasWidth && pointer.worldY < this.canvasHeight
+                ) {
+                    this.poisonZonePreview.visible = true;
+                    this.poisonZonePreview.clear();
+                    this.poisonZonePreview.fillStyle(0x00ff00, 0.5);
+                    this.poisonZonePreview.fillCircle(0, 0, 50);
+                    this.poisonZonePreview.setPosition(pointer.worldX, pointer.worldY);
+                } else {
+                    this.poisonZonePreview.visible = false;
+                    this.poisonZonePreview.clear();
+                    this.poisonZonePreview.setPosition(-1000, -1000);
+                }
+            }
             if (!this.pointerWasDown && pointer.isDown && this.poisonZonePreview) {
                 const x = pointer.worldX;
                 const y = pointer.worldY;
                 // Prevent placement at invalid positions like (0,0)
                 if (x <= 0 || y <= 0 || x >= this.canvasWidth || y >= this.canvasHeight) return;
+                // Clear and destroy preview immediately before creating zone
+                if (this.poisonZonePreview) {
+                    this.poisonZonePreview.clear();
+                    this.poisonZonePreview.setPosition(-1000, -1000);
+                    this.poisonZonePreview.destroy();
+                    this.poisonZonePreview = null;
+                }
+                this.placingPoisonZone = false;
+                console.log('[POISON] Creating zone at', x, y);
                 const zone = this.add.graphics();
                 zone.fillStyle(0x00ff00, 0.7);
-                zone.fillCircle(x, y, 50);
-                const emitter = this.add.particles(x, y, 'poisonParticle', {
+                zone.fillCircle(0, 0, 50);
+                zone.setPosition(x, y);
+                zone.setDepth(10);
+                console.log('[POISON] Creating emitter at', x, y);
+                const emitter = this.add.particles('poisonParticle', {
                     speed: { min: 10, max: 50 }, scale: { start: 0.5, end: 0 }, lifespan: 1000, frequency: 100, quantity: 2, emitting: true
-                });
-                const glow = this.add.graphics(); glow.fillStyle(0x00ff00, 0.3); glow.fillCircle(x, y, 60);
+                }).setPosition(x, y);
+                console.log('[POISON] Creating glow at', x, y);
+                const glow = this.add.graphics(); glow.fillStyle(0x00ff00, 0.3); glow.fillCircle(0, 0, 60); glow.setPosition(x, y);
+                glow.setDepth(5);
                 this.tweens.add({ targets: glow, alpha: { from: 0.3, to: 0.5 }, duration: 300, yoyo: true, repeat: -1 });
+                console.log('[POISON] Creating innerWave at', x, y);
                 const innerWave = this.add.graphics(); innerWave.fillStyle(0x00ff00, 0.4); innerWave.fillCircle(0, 0, 20); innerWave.setPosition(x, y);
+                innerWave.setDepth(15);
                 this.tweens.add({ targets: innerWave, scaleX: { from: 0.1, to: 2.0 }, scaleY: { from: 0.1, to: 2.0 }, duration: 2000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
                 this.poisonZones.push({ x, y, radius: 50, graphics: zone, emitter, glow, innerWave });
-                this.poisonZonePreview.destroy(); this.poisonZonePreview = null; this.placingPoisonZone = false;
                 this.upgradeText.textContent = 'Poison zone placed!';
                 this.time.delayedCall(2000, () => { this.upgradeText.textContent = ''; });
             }
@@ -1346,6 +1645,25 @@ class GameScene extends Phaser.Scene {
                 pulseContainer.classList.remove('collapsed');
             }
         }
+
+        const bounceCosts = [500, 1000, 2000];
+        const bounceCurrentCost = this.bounceLevel < 3 ? bounceCosts[this.bounceLevel] : 0;
+        this.bounceButton.textContent = `BOUNCE - Cost: ${bounceCurrentCost} (${this.bounceLevel}/3)`;
+        this.bounceButton.disabled = this.bounceLevel >= 3 || this.playerMoney < bounceCurrentCost;
+        const bounceContainer = document.getElementById('bounce-container');
+        if (bounceContainer) {
+            if (this.bounceLevel >= 3) {
+                if (!bounceContainer.classList.contains('maxed-out')) {
+                    bounceContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        bounceContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                bounceContainer.classList.remove('maxed-out');
+                bounceContainer.classList.remove('collapsed');
+            }
+        }
     }
 
     showRestartConfirm() {
@@ -1424,24 +1742,24 @@ class GameScene extends Phaser.Scene {
         // Clear lava zones
         this.lavaZones.forEach(zone => {
             if (zone.emitter) zone.emitter.destroy();
-            if (zone.glow) zone.glow.destroy();
-            if (zone.innerWave) zone.innerWave.destroy();
-            zone.graphics.destroy();
+            if (zone.glow) { zone.glow.clear(); zone.glow.destroy(); }
+            if (zone.innerWave) { zone.innerWave.clear(); zone.innerWave.destroy(); }
+            if (zone.graphics) { zone.graphics.clear(); zone.graphics.destroy(); }
         });
         this.lavaZones = [];
         // Clear poison zones
         this.poisonZones.forEach(zone => {
             if (zone.emitter) zone.emitter.destroy();
-            if (zone.glow) zone.glow.destroy();
-            if (zone.innerWave) zone.innerWave.destroy();
-            zone.graphics.destroy();
+            if (zone.glow) { zone.glow.clear(); zone.glow.destroy(); }
+            if (zone.innerWave) { zone.innerWave.clear(); zone.innerWave.destroy(); }
+            if (zone.graphics) { zone.graphics.clear(); zone.graphics.destroy(); }
         });
         this.poisonZones = [];
 
         // Clear spikes
         this.spikes.forEach(spike => {
-            if (spike.innerWave) spike.innerWave.destroy();
-            spike.graphics.destroy();
+            if (spike.innerWave) { spike.innerWave.clear(); spike.innerWave.destroy(); }
+            if (spike.graphics) { spike.graphics.clear(); spike.graphics.destroy(); }
         });
         this.spikes = [];
 
@@ -1481,8 +1799,6 @@ class GameScene extends Phaser.Scene {
             }
         });
     }
-
-
 }
 
 const config = {
