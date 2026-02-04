@@ -294,6 +294,7 @@ class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
+        const pointer = this.input.activePointer;
         if (!this.gameStarted || this.gameOver || (this.levelComplete && !this.placingLavaZone && !this.placingPoisonZone && !this.placingSpikes) || this.paused) return;
 
         // Move enemies towards player
@@ -478,13 +479,12 @@ class GameScene extends Phaser.Scene {
 
         // Handle spikes placement
         if (this.placingSpikes) {
-            const pointer = this.input.activePointer;
             // Update preview position to follow mouse
-            if (this.spikesPreview) {
+            if (this.spikesPreview && pointer) {
                 this.spikesPreview.setPosition(pointer.worldX, pointer.worldY);
             }
             // Place spikes on click
-            if (!this.pointerWasDown && pointer.isDown && this.spikesPreview) {
+            if (!this.pointerWasDown && pointer && pointer.isDown && this.spikesPreview) {
                 const x = pointer.worldX;
                 const y = pointer.worldY;
                 const spike = this.add.graphics();
@@ -633,6 +633,9 @@ class GameScene extends Phaser.Scene {
             });
             this.spikes = [];
         }
+
+        // Update pointer state for click detection
+        this.pointerWasDown = pointer ? pointer.isDown : false;
     }
 
     startGame() {
@@ -700,6 +703,15 @@ class GameScene extends Phaser.Scene {
         this.gamePausedText.style.display = 'none';
         // Resume physics
         this.physics.resume();
+
+        // Reset upgrade button animations
+        const containers = ['damage-container', 'more-lasers-container', 'health-container', 'lava-zone-container', 'poison-zone-container', 'spikes-container', 'pulse-container'];
+        containers.forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                container.classList.remove('maxed-out');
+            }
+        });
     }
 
     restartGame() {
@@ -855,7 +867,7 @@ class GameScene extends Phaser.Scene {
 
         // Add graphics for enemy
         enemy.graphics = this.add.graphics();
-        enemy.graphics.fillStyle(0xff0000);
+        enemy.graphics.fillStyle(0x880000);
         enemy.graphics.fillCircle(0, 0, 24);
         enemy.graphics.setPosition(x, y);
 
@@ -1103,9 +1115,11 @@ class GameScene extends Phaser.Scene {
         const pointer = this.input.activePointer;
         if (kind === 'lava' && this.placingLavaZone) {
             if (this.lavaZonePreview) this.lavaZonePreview.setPosition(pointer.worldX, pointer.worldY);
-            if (pointer.isDown && this.lavaZonePreview) {
+            if (!this.pointerWasDown && pointer.isDown && this.lavaZonePreview) {
                 const x = pointer.worldX;
                 const y = pointer.worldY;
+                // Prevent placement at invalid positions like (0,0)
+                if (x <= 0 || y <= 0 || x >= this.canvasWidth || y >= this.canvasHeight) return;
                 const zone = this.add.graphics();
                 zone.fillStyle(0xff4500, 0.7);
                 zone.fillCircle(x, y, 50);
@@ -1125,9 +1139,11 @@ class GameScene extends Phaser.Scene {
         }
         if (kind === 'poison' && this.placingPoisonZone) {
             if (this.poisonZonePreview) this.poisonZonePreview.setPosition(pointer.worldX, pointer.worldY);
-            if (pointer.isDown && this.poisonZonePreview) {
+            if (!this.pointerWasDown && pointer.isDown && this.poisonZonePreview) {
                 const x = pointer.worldX;
                 const y = pointer.worldY;
+                // Prevent placement at invalid positions like (0,0)
+                if (x <= 0 || y <= 0 || x >= this.canvasWidth || y >= this.canvasHeight) return;
                 const zone = this.add.graphics();
                 zone.fillStyle(0x00ff00, 0.7);
                 zone.fillCircle(x, y, 50);
@@ -1196,30 +1212,134 @@ class GameScene extends Phaser.Scene {
         const damageCurrentCost = this.damageLevel < 5 ? damageCosts[this.damageLevel] : 0;
         this.damageUpgradeButton.textContent = `DAMAGE - Cost: ${damageCurrentCost} (${this.damageLevel}/5)`;
         this.damageUpgradeButton.disabled = this.damageLevel >= 5 || this.playerMoney < damageCurrentCost;
+        const damageContainer = document.getElementById('damage-container');
+        if (damageContainer) {
+            if (this.damageLevel >= 5) {
+                if (!damageContainer.classList.contains('maxed-out')) {
+                    damageContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        damageContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                damageContainer.classList.remove('maxed-out');
+                damageContainer.classList.remove('collapsed');
+            }
+        }
+
         const costs = [10, 20, 100, 300];
         const currentCost = this.moreLasersLevel < 4 ? costs[this.moreLasersLevel] : 0;
         this.moreLasersButton.textContent = `MORE LASERS - Cost: ${currentCost} (${this.moreLasersLevel}/4)`;
         this.moreLasersButton.disabled = this.moreLasersLevel >= 4 || this.playerMoney < currentCost;
+        const moreLasersContainer = document.getElementById('more-lasers-container');
+        if (moreLasersContainer) {
+            if (this.moreLasersLevel >= 4) {
+                if (!moreLasersContainer.classList.contains('maxed-out')) {
+                    moreLasersContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        moreLasersContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                moreLasersContainer.classList.remove('maxed-out');
+                moreLasersContainer.classList.remove('collapsed');
+            }
+        }
+
         const healthCosts = [15, 20, 50];
         const healthCurrentCost = this.healthLevel < 3 ? healthCosts[this.healthLevel] : 0;
         this.healthUpgradeButton.textContent = `HEALTH - Cost: ${healthCurrentCost} (${this.healthLevel}/3)`;
         this.healthUpgradeButton.disabled = this.healthLevel >= 3 || this.playerMoney < healthCurrentCost;
+        const healthContainer = document.getElementById('health-container');
+        if (healthContainer) {
+            if (this.healthLevel >= 3) {
+                if (!healthContainer.classList.contains('maxed-out')) {
+                    healthContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        healthContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                healthContainer.classList.remove('maxed-out');
+                healthContainer.classList.remove('collapsed');
+            }
+        }
+
         const lavaCosts = [10, 15, 20, 25];
         const lavaCurrentCost = this.lavaZoneLevel < 4 ? lavaCosts[this.lavaZoneLevel] : 0;
         this.lavaZoneButton.textContent = `LAVA ZONE - Cost: ${lavaCurrentCost} (${this.lavaZoneLevel}/4)`;
         this.lavaZoneButton.disabled = this.lavaZoneLevel >= 4 || this.playerMoney < lavaCurrentCost;
+        const lavaContainer = document.getElementById('lava-zone-container');
+        if (lavaContainer) {
+            if (this.lavaZoneLevel >= 4) {
+                if (!lavaContainer.classList.contains('maxed-out')) {
+                    lavaContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        lavaContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                lavaContainer.classList.remove('maxed-out');
+                lavaContainer.classList.remove('collapsed');
+            }
+        }
+
         const poisonCosts = [10, 15, 20, 25];
         const poisonCurrentCost = this.poisonZoneLevel < 4 ? poisonCosts[this.poisonZoneLevel] : 0;
         this.poisonZoneButton.textContent = `POISON ZONE - Cost: ${poisonCurrentCost} (${this.poisonZoneLevel}/4)`;
         this.poisonZoneButton.disabled = this.poisonZoneLevel >= 4 || this.playerMoney < poisonCurrentCost;
+        const poisonContainer = document.getElementById('poison-zone-container');
+        if (poisonContainer) {
+            if (this.poisonZoneLevel >= 4) {
+                if (!poisonContainer.classList.contains('maxed-out')) {
+                    poisonContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        poisonContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                poisonContainer.classList.remove('maxed-out');
+                poisonContainer.classList.remove('collapsed');
+            }
+        }
+
         const spikesCosts = [10,10,10,10,10,10,10,10,10,10, 50,50,50,50,50,50,50,50,50,50, 50,50,50,50,50,50,50,50,50,50]; // first 10: 10, next 20: 50
         const spikesCurrentCost = this.spikesLevel < 30 ? spikesCosts[this.spikesLevel] : 0;
         this.spikesButton.textContent = `SPIKES - Cost: ${spikesCurrentCost} (${this.spikesLevel}/30)`;
         this.spikesButton.disabled = this.spikesLevel >= 30 || this.playerMoney < spikesCurrentCost;
+        const spikesContainer = document.getElementById('spikes-container');
+        if (spikesContainer) {
+            if (this.spikesLevel >= 30) {
+                if (!spikesContainer.classList.contains('maxed-out')) {
+                    spikesContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        spikesContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                spikesContainer.classList.remove('maxed-out');
+                spikesContainer.classList.remove('collapsed');
+            }
+        }
+
         const pulseCosts = [100, 200, 300];
         const pulseCurrentCost = this.pulseLevel < 3 ? pulseCosts[this.pulseLevel] : 0;
         this.pulseButton.textContent = `PULSE - Cost: ${pulseCurrentCost} (${this.pulseLevel}/3)`;
         this.pulseButton.disabled = this.pulseLevel >= 3 || this.playerMoney < pulseCurrentCost;
+        const pulseContainer = document.getElementById('pulse-container');
+        if (pulseContainer) {
+            if (this.pulseLevel >= 3) {
+                if (!pulseContainer.classList.contains('maxed-out')) {
+                    pulseContainer.classList.add('maxed-out');
+                    setTimeout(() => {
+                        pulseContainer.classList.add('collapsed');
+                    }, 2000);
+                }
+            } else {
+                pulseContainer.classList.remove('maxed-out');
+                pulseContainer.classList.remove('collapsed');
+            }
+        }
     }
 
     showRestartConfirm() {
@@ -1345,6 +1465,15 @@ class GameScene extends Phaser.Scene {
         this.nextLevelButton.style.display = 'none';
         this.gameWinText.style.display = 'none';
         this.gamePausedText.style.display = 'none';
+
+        // Reset upgrade button animations
+        const containers = ['damage-container', 'more-lasers-container', 'health-container', 'lava-zone-container', 'poison-zone-container', 'spikes-container', 'pulse-container'];
+        containers.forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                container.classList.remove('maxed-out');
+            }
+        });
     }
 
 
