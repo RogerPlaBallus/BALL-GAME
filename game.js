@@ -215,6 +215,12 @@ class GameScene extends Phaser.Scene {
         this.spikesButton.addEventListener('click', () => {
             this.buySpikes();
         });
+        this.spikesButton.addEventListener('mouseenter', () => {
+            this.spikesButton.classList.add('show-tooltip');
+        });
+        this.spikesButton.addEventListener('mouseleave', () => {
+            this.spikesButton.classList.remove('show-tooltip');
+        });
 
         // Pulse upgrade button
         this.pulseButton = document.getElementById('pulse-button');

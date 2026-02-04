@@ -246,7 +246,7 @@ canvas {
 .upgrade-button-container {
     margin: 5px;
     transition: all 2s ease;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .upgrade-button-container.maxed-out {
@@ -275,13 +275,14 @@ canvas {
     background-color: #666 !important;
     color: #ccc !important;
     cursor: not-allowed !important;
+    pointer-events: auto;
 }
 
 #upgrade-window button {
     position: relative;
 }
 
-#upgrade-window button:hover::after {
+#upgrade-window button::after {
     content: attr(data-tooltip);
     position: absolute;
     top: 50%;
@@ -294,17 +295,18 @@ canvas {
     border: 2px solid #fff;
     font-size: 20px;
     white-space: nowrap;
-    z-index: 999999;
+    z-index: 1000001;
     pointer-events: none;
-    opacity: 1;
+    opacity: 0;
     transition: opacity 0.3s ease;
     margin-left: 10px;
 }
 
-#upgrade-window button:not(:hover)::after {
-    opacity: 0;
-    transition: opacity 0.3s ease;
+#upgrade-window button:hover::after {
+    opacity: 1;
 }
+
+
 
 #audio-controls {
     position: absolute;
