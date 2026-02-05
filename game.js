@@ -84,6 +84,7 @@ class GameScene extends Phaser.Scene {
         // Get canvas dimensions
         this.canvasWidth = this.game.config.width;
         this.canvasHeight = this.game.config.height;
+        console.log(`[GAME] Canvas size: ${this.canvasWidth}x${this.canvasHeight}`);
 
         // Set canvas background color
         
@@ -516,6 +517,17 @@ class GameScene extends Phaser.Scene {
             if (!this.pointerWasDown && pointer && pointer.isDown && this.spikesPreview) {
                 const x = pointer.worldX;
                 const y = pointer.worldY;
+                // Check if spikes would be placed inside protected player zone
+                if (this.isInsideProtectedZone(x, y, 15)) {
+                    console.log('[SPIKES] BLOCKED - inside protected zone - cannot place here');
+                    this.upgradeText.textContent = '❌ Cannot place spikes inside player!';
+                    this.upgradeText.style.color = '#ff0000';
+                    this.time.delayedCall(3000, () => { 
+                        this.upgradeText.textContent = 'Click to place spikes'; 
+                        this.upgradeText.style.color = '#ffffff';
+                    });
+                    return; // Return without destroying preview - let player try again elsewhere
+                }
                 const spike = this.add.graphics();
                 spike.fillStyle(0x808080, 0.7); // grey
                 spike.fillCircle(x, y, 15);
@@ -663,12 +675,23 @@ class GameScene extends Phaser.Scene {
             this.spikes = [];
         }
 
+        // DEBUG: Draw protected zone for visual debugging (remove in production)
+        if (this.placingLavaZone || this.placingPoisonZone || this.placingSpikes) {
+            // Draw a circle showing the protected zone
+            const debugGraphics = this.add.graphics();
+            debugGraphics.lineStyle(2, 0xffffff, 0.5);
+            debugGraphics.strokeCircle(this.canvasWidth / 2, this.canvasHeight / 2, this.getProtectedRadius());
+            this.time.delayedCall(100, () => { debugGraphics.destroy(); });
+        }
+
         // Update pointer state for click detection
         this.pointerWasDown = pointer ? pointer.isDown : false;
     }
 
     startGame() {
         this.gameStarted = true;
+        this.upgradeText.textContent = ''; // Clear any upgrade text when game starts
+        this.upgradeText.style.color = '#ffffff'; // Reset color to default
         this.startButton.style.display = 'none';
         this.startText.style.display = 'none';
         this.pauseButton.style.display = 'block';
@@ -858,7 +881,7 @@ class GameScene extends Phaser.Scene {
     spawnEnemy() {
         // Spawn outside screen from random direction
         const side = Phaser.Math.Between(0, 3);
-        let x, y;
+        let x, y; // Spawn outside screen from random direction
         switch (side) {
             case 0: // top
                 x = Phaser.Math.Between(0, this.canvasWidth);
@@ -921,7 +944,8 @@ class GameScene extends Phaser.Scene {
     }
 
     drawLaser() {
-        const laserColors = [0xffffff, 0xffff00, 0x0000ff, 0xff00ff, 0x00ff00, 0xff0000]; // white, yellow, blue, pink, green, red
+        // Use visible laser colors (avoid pure white on dark background)
+        const laserColors = [0xfff200, 0x00eaff, 0xff00ff, 0x00ff00, 0xff0000, 0xff8800]; // yellow, cyan, magenta, green, red, orange
         this.lasers.forEach((laser, index) => {
             if (index < this.targets.length) {
                 laser.clear();
@@ -1261,6 +1285,7 @@ class GameScene extends Phaser.Scene {
                 this.lastUpgradeSoundTime = currentTime;
             }
             this.placingSpikes = true;
+            this.pointerWasDown = true; // Prevent the button click from immediately placing spikes
             this.spikesPreview = this.add.graphics();
             // Position the graphics object off-screen initially to prevent the grey box appearing at (0,0)
             this.spikesPreview.setPosition(-1000, -1000);
@@ -1329,6 +1354,25 @@ class GameScene extends Phaser.Scene {
         g.destroy();
     }
 
+    // Helper to get the protected radius around the player (base radius + 15% for 3 health upgrades)
+    getProtectedRadius() {
+        const baseRadius = this.playerCurrentSize;
+        const protectedRadius = baseRadius * 1.15; // +15% protection zone
+        return protectedRadius;
+    }
+
+    // Check if a position is inside the protected player zone
+    isInsideProtectedZone(x, y, zoneRadius = 50) {
+        const playerCenterX = this.canvasWidth / 2;
+        const playerCenterY = this.canvasHeight / 2;
+        const protectedRadius = this.getProtectedRadius();
+        const distance = Phaser.Math.Distance.Between(playerCenterX, playerCenterY, x, y);
+        const totalLimit = protectedRadius + zoneRadius;
+        const isInside = distance < totalLimit;
+        console.log(`[COLLISION] Distance: ${distance.toFixed(2)}, Limit: ${totalLimit.toFixed(2)}, Inside: ${isInside}`);
+        return isInside;
+    }
+
     // Start placement for lava or poison zones (creates preview)
     startZonePlacement(kind) {
         const cfg = {
@@ -1343,6 +1387,7 @@ class GameScene extends Phaser.Scene {
             this[cfg.previewProp].destroy();
         }
         this[cfg.placingProp] = true;
+        this.pointerWasDown = true; // Prevent the button click from immediately placing the zone
         this[cfg.previewProp] = this.add.graphics();
         // Defensive: clear, move off-screen, and hide immediately
         this[cfg.previewProp].clear();
@@ -1356,6 +1401,7 @@ class GameScene extends Phaser.Scene {
     // Handle placement for zones (called each update)
     handleZonePlacement(kind) {
         const pointer = this.input.activePointer;
+        if (!pointer) return;
         if (kind === 'lava' && this.placingLavaZone) {
             if (this.lavaZonePreview && pointer) {
                 // Only draw preview if pointer is inside play area and not at (0,0)
@@ -1377,8 +1423,20 @@ class GameScene extends Phaser.Scene {
             if (!this.pointerWasDown && pointer.isDown && this.lavaZonePreview) {
                 const x = pointer.worldX;
                 const y = pointer.worldY;
+                console.log(`[LAVA] Click at (${x}, ${y}), player at (${this.canvasWidth / 2}, ${this.canvasHeight / 2})`);
                 // Prevent placement at invalid positions like (0,0)
                 if (x <= 0 || y <= 0 || x >= this.canvasWidth || y >= this.canvasHeight) return;
+                // Check if lava zone would be placed inside protected player zone
+                if (this.isInsideProtectedZone(x, y, 50)) {
+                    console.log('[LAVA] BLOCKED - inside protected zone - cannot place here');
+                    this.upgradeText.textContent = '❌ Cannot place lava zone inside player!';
+                    this.upgradeText.style.color = '#ff0000';
+                    this.time.delayedCall(3000, () => { 
+                        this.upgradeText.textContent = 'Click to place lava zone circle'; 
+                        this.upgradeText.style.color = '#ffffff';
+                    });
+                    return; // Return without destroying preview - let player try again elsewhere
+                }
                 // Clear and destroy preview immediately before creating zone
                 if (this.lavaZonePreview) {
                     this.lavaZonePreview.clear();
@@ -1434,6 +1492,17 @@ class GameScene extends Phaser.Scene {
                 const y = pointer.worldY;
                 // Prevent placement at invalid positions like (0,0)
                 if (x <= 0 || y <= 0 || x >= this.canvasWidth || y >= this.canvasHeight) return;
+                // Check if poison zone would be placed inside protected player zone
+                if (this.isInsideProtectedZone(x, y, 50)) {
+                    console.log('[POISON] BLOCKED - inside protected zone - cannot place here');
+                    this.upgradeText.textContent = '❌ Cannot place poison zone inside player!';
+                    this.upgradeText.style.color = '#ff0000';
+                    this.time.delayedCall(3000, () => { 
+                        this.upgradeText.textContent = 'Click to place poison zone circle'; 
+                        this.upgradeText.style.color = '#ffffff';
+                    });
+                    return; // Return without destroying preview - let player try again elsewhere
+                }
                 // Clear and destroy preview immediately before creating zone
                 if (this.poisonZonePreview) {
                     this.poisonZonePreview.clear();
