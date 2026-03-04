@@ -1,5 +1,3 @@
-![demo](https://github.com/user-attachments/assets/ec09a355-96af-409d-8b34-775d6fb80de3)
-
 # BALL GAME
 
 A simple browser-based survival game built with Phaser.js. <br>
