@@ -32,7 +32,3 @@ Control a white sphere that automatically shoots lasers at approaching red enemi
 - CSS3
 - JavaScript
 - Phaser.js game framework
-
-## Running the Game
-
-Open `index.html` in a web browser to play.
