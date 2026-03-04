@@ -7,82 +7,100 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container"></div>
-    <div id="start-text">Can you reach level 20?</div>
-    <button id="start-button">START</button>
-    <button id="pause-button">PAUSE</button>
-    <button id="restart-button">RESTART</button>
-    <div id="hud"></div>
-    <div id="audio-controls">
-        <label for="music-volume">Music Volume:</label>
-        <input type="range" id="music-volume" min="0" max="1" step="0.1" value="1">
-        <label for="effects-volume">Effects Volume:</label>
-        <input type="range" id="effects-volume" min="0" max="1" step="0.1" value="1">
+    <!-- UI SIDEBAR: Left column with all panels -->
+    <div id="ui-sidebar">
+        <!-- TOP ROW: Upgrade window on left, HUD window on right -->
+        <div id="sidebar-top-row">
+            <div id="upgrade-window">
+                <h2>UPGRADES</h2>
+                <div id="upgrade-text"></div>
+                <div class="upgrade-button-container" id="damage-container">
+                    <button id="damage-upgrade-button" title="Increases laser damage by 1." data-tooltip="Increases laser damage by 1.">DAMAGE - Cost: 10</button>
+                </div>
+                <div class="upgrade-button-container" id="more-lasers-container">
+                    <button id="more-lasers-button" title="Adds an additional laser beam." data-tooltip="Adds an additional laser beam.">MORE LASERS - Cost: 10</button>
+                </div>
+                <div class="upgrade-button-container" id="health-container">
+                    <button id="health-upgrade-button" title="Increases maximum health." data-tooltip="Increases maximum health.">HEALTH - Cost: 15</button>
+                </div>
+                <div class="upgrade-button-container" id="lava-zone-container">
+                    <button id="lava-zone-button" title="Places a lava zone that deals 1 damage per second to enemies inside." data-tooltip="Places a lava zone that deals 1 damage per second to enemies inside.">LAVA ZONE - Cost: 10</button>
+                </div>
+                <div class="upgrade-button-container" id="poison-zone-container">
+                    <button id="poison-zone-button" title="Places a poison zone that deals 1 damage per second to enemies inside." data-tooltip="Places a poison zone that deals 1 damage per second to enemies inside.">POISON ZONE - Cost: 10</button>
+                </div>
+                <div class="upgrade-button-container" id="spikes-container">
+                    <button id="spikes-button" title="Places spikes that deal 5 damage once to each enemy that touches them." data-tooltip="Places spikes that deal 5 damage once to each enemy that touches them.">SPIKES - Cost: 10</button>
+                </div>
+                <div class="upgrade-button-container" id="pulse-container">
+                    <button id="pulse-button" title="A pulse that deals damage outwards." data-tooltip="A pulse that deals damage outwards.">PULSE - Cost: 100</button>
+                </div>
+                <div class="upgrade-button-container" id="bounce-container">
+                    <button id="bounce-button" title="Laser bounces from one enemy to the nearest one." data-tooltip="Laser bounces from one enemy to the nearest one.">BOUNCE - Cost: 1</button>
+                </div>
+            </div>
+
+            <div id="right-column">
+                <div id="hud-window">
+                    <div id="hud-content">
+                        Level: <span id="hud-level">1</span><br>
+                        Enemies: <span id="hud-enemies">10</span>
+                    </div>
+                </div>
+                <div id="stats-window">
+                    <h3>PLAYER</h3>
+                    <div id="stats-content">
+                        💰      <span id="stats-money">0</span><br>
+                        Health: <span id="stats-health">5</span><br>
+                        Damage: <span id="stats-damage">1</span><br>
+                        Lasers: <span id="stats-lasers">1</span><br>
+                        Crit Chance: <span id="stats-crit">0%</span>
+                    </div>
+                </div>
+                <button id="pause-button">PAUSE</button>
+                <button id="restart-button">RESTART</button>
+            </div>
+        </div>
+
+        <!-- MIDDLE: Audio controls -->
+        <div id="audio-controls">
+            <label for="music-volume">Music Volume:</label>
+            <input type="range" id="music-volume" min="0" max="1" step="0.1" value="1">
+            <label for="effects-volume">Effects Volume:</label>
+            <input type="range" id="effects-volume" min="0" max="1" step="0.1" value="1">
+        </div>
     </div>
+
+    <!-- GAME CANVAS CONTAINER: Right side main play zone -->
+    <div id="game-container">
         <div class="background">
-          <span class="ball"></span>
-          <span class="ball"></span>
-          <span class="ball"></span>
-          <span class="ball"></span>
-          <span class="ball"></span>
-          <span class="ball"></span>
+            <span class="ball"></span>
+            <span class="ball"></span>
+            <span class="ball"></span>
+            <span class="ball"></span>
+            <span class="ball"></span>
+            <span class="ball"></span>
         </div>
-        <div id="stats-window">
-        <h3>PLAYER</h3>
-        <div id="stats-content">
-            💰      <span id="stats-money">0</span><br>
-            Health: <span id="stats-health">5</span><br>
-            Damage: <span id="stats-damage">1</span><br>
-            Lasers: <span id="stats-lasers">1</span><br>
-            Crit Chance: <span id="stats-crit">0%</span>
-        </div>
+        <!-- MODAL OVERLAYS (moved inside game container so they're centered over the playzone) -->
+        <div id="start-text">Can you reach level 20?</div>
+        <button id="start-button">START</button>
+
+        <div id="hud"></div>
+        <div id="game-over">GAME OVER</div>
+        <button id="try-again-button">TRY AGAIN</button>
+        <button id="next-level-button">NEXT LEVEL</button>
+        <div id="level-complete">LEVEL COMPLETED</div>
+        <div id="game-win">YOU WIN!</div>
+        <button id="infinite-mode-button">∞<br>Try infinite mode, see how long can you survive</button>
+        <div id="game-paused">GAME PAUSED</div>
     </div>
-    <div id="game-over">GAME OVER</div>
-    <button id="try-again-button">TRY AGAIN</button>
-    <button id="next-level-button">NEXT LEVEL</button>
-    <div id="upgrade-window">
-        <h2>UPGRADES</h2>
-        <div id="upgrade-text"></div>
-        <div class="upgrade-button-container" id="damage-container">
-            <button id="damage-upgrade-button" title="Increases laser damage by 1." data-tooltip="Increases laser damage by 1.">DAMAGE - Cost: 10</button>
-        </div>
-        <div class="upgrade-button-container" id="more-lasers-container">
-            <button id="more-lasers-button" title="Adds an additional laser beam." data-tooltip="Adds an additional laser beam.">MORE LASERS - Cost: 10</button>
-        </div>
-        <div class="upgrade-button-container" id="health-container">
-            <button id="health-upgrade-button" title="Increases maximum health." data-tooltip="Increases maximum health.">HEALTH - Cost: 15</button>
-        </div>
-        <div class="upgrade-button-container" id="lava-zone-container">
-            <button id="lava-zone-button" title="Places a lava zone that deals 1 damage per second to enemies inside." data-tooltip="Places a lava zone that deals 1 damage per second to enemies inside.">LAVA ZONE - Cost: 10</button>
-        </div>
-        <div class="upgrade-button-container" id="poison-zone-container">
-            <button id="poison-zone-button" title="Places a poison zone that deals 1 damage per second to enemies inside." data-tooltip="Places a poison zone that deals 1 damage per second to enemies inside.">POISON ZONE - Cost: 10</button>
-        </div>
-        <div class="upgrade-button-container" id="spikes-container">
-            <button id="spikes-button" title="Places spikes that deal 5 damage once to each enemy that touches them." data-tooltip="Places spikes that deal 5 damage once to each enemy that touches them.">SPIKES - Cost: 10</button>
-        </div>
-        <div class="upgrade-button-container" id="pulse-container">
-            <button id="pulse-button" title="A pulse that deals damage outwards." data-tooltip="A pulse that deals damage outwards.">PULSE - Cost: 100</button>
-        </div>
-        <div class="upgrade-button-container" id="bounce-container">
-            <button id="bounce-button" title="Laser bounces from one enemy to the nearest one." data-tooltip="Laser bounces from one enemy to the nearest one.">BOUNCE - Cost: 1</button>
-        </div>
-    </div>
-    <div id="hud-window">
-        <div id="hud-content">
-            Level: <span id="hud-level">1</span><br>
-            Enemies: <span id="hud-enemies">10</span>
-        </div>
-    </div>
-    <div id="level-complete">LEVEL COMPLETED</div>
-    <div id="game-win">YOU WIN!</div>
-    <button id="infinite-mode-button">∞<br>Try infinite mode, see how long can you survive</button>
-    <div id="game-paused">GAME PAUSED</div>
+
     <div id="restart-confirm">
         <h2>RESTART GAME?</h2>
         <button id="restart-yes">YES</button>
         <button id="restart-no">NO</button>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
     <script src="game.js"></script>
 </body>

@@ -185,6 +185,9 @@ class GameScene extends Phaser.Scene {
             this.canvas.style.display = 'none';
             this.canvas.style.border = 'none';
             this.canvas.style.backgroundColor = '#000000f0';
+            // Apply round canvas styling
+            this.canvas.style.borderRadius = '20px';
+    
         }
 
         // Damage upgrade button
@@ -699,8 +702,22 @@ class GameScene extends Phaser.Scene {
         // Show canvas, upgrade window, and stats window
         if (this.canvas) {
             this.canvas.style.display = 'block';
-            this.canvas.style.border = '1px solid #fff';
             this.canvas.style.backgroundColor = 'transparent';
+            // Apply round canvas styling
+            this.canvas.style.borderRadius = '20px';
+        }
+        // Also show the game container canvas (for CSS selector)
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            const canvas = gameContainer.querySelector('canvas');
+            if (canvas) {
+                canvas.style.display = 'block';
+            }
+            // Show the background
+            const background = gameContainer.querySelector('.background');
+            if (background) {
+                background.style.display = 'block';
+            }
         }
         this.upgradeWindow.style.display = 'block';
         document.getElementById('stats-window').style.display = 'flex';
@@ -1845,6 +1862,14 @@ class GameScene extends Phaser.Scene {
         if (this.canvas) {
             this.canvas.style.display = 'none';
             this.canvas.style.border = 'none';
+        }
+        // Hide the background
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            const background = gameContainer.querySelector('.background');
+            if (background) {
+                background.style.display = 'none';
+            }
         }
         this.upgradeWindow.style.display = 'none';
         document.getElementById('stats-window').style.display = 'none';
