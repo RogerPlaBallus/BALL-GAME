@@ -534,11 +534,13 @@ class GameScene extends Phaser.Scene {
                 const spike = this.add.graphics();
                 spike.fillStyle(0x808080, 0.7); // grey
                 spike.fillCircle(x, y, 15);
+                spike.setDepth(20); // Keep spikes above lava/poison zones
                 // Add inner wave effect
                 const innerWave = this.add.graphics();
                 innerWave.fillStyle(0x808080, 0.4);
                 innerWave.fillCircle(0, 0, 7);
                 innerWave.setPosition(x, y);
+                innerWave.setDepth(21); // Keep spike wave above zone visuals
                 // Animate inner wave for movement effect: starts small, grows to circle size, shrinks back
                 this.tweens.add({
                     targets: innerWave,
@@ -1308,6 +1310,7 @@ class GameScene extends Phaser.Scene {
             this.spikesPreview.setPosition(-1000, -1000);
             this.spikesPreview.fillStyle(0x808080, 0.5); // grey
             this.spikesPreview.fillCircle(0, 0, 15);
+            this.spikesPreview.setDepth(20); // Match placed spikes visual priority
             this.upgradeText.textContent = 'Click to place spikes';
             if (this.hudLevel) this.hudLevel.textContent = this.level;
             if (this.hudEnemies) this.hudEnemies.textContent = this.remainingEnemies;
