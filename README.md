@@ -1,5 +1,3 @@
-![demo](https://github.com/user-attachments/assets/ec09a355-96af-409d-8b34-775d6fb80de3)
-
 # BALL GAME
 
 A simple browser-based survival game built with Phaser.js. <br>
@@ -34,7 +32,3 @@ Control a white sphere that automatically shoots lasers at approaching red enemi
 - CSS3
 - JavaScript
 - Phaser.js game framework
-
-## Running the Game
-
-Open `index.html` in a web browser to play.
